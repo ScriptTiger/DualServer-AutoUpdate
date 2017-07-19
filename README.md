@@ -15,4 +15,4 @@ P: Porn
 
 S: Social
 
-The blacklist.txt is only the unified hosts, blackist-f.txt is the unified hosts and fake news, blacklist-fg.txt is the unified hosts and fake news and gamblineg, etc.
+The blacklist.txt is only the unified hosts, blackist-f.txt is the unified hosts and fake news, blacklist-fg.txt is the unified hosts and fake news and gambling, etc.
