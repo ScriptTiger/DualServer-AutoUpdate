@@ -1,9 +1,11 @@
 # DualServer
 Scripts and blacklists for DualServer.
 
-The blacklists are reformatted versions of the unified hosts files maintained by Steven Black:
+The blacklists are reformatted versions of the Unified Hosts files maintained by Steven Black:
 
 https://github.com/StevenBlack/hosts
+
+Synced regularly to Steven Black's Unified Hosts.
 
 The blacklist file letter codes are as follows:
 
