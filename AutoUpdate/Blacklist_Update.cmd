@@ -24,11 +24,11 @@ set MARKED=0
 
 rem Check that markings are correctly positioned within [DNS_HOSTS] section
 for /f "tokens=*" %%0 in (
-'findstr /b /i "[[] ####.BEGIN.UNIFIED.HOSTS.#### ####.END.UNIFIED.HOSTS.####" "%DIR%%INI%"'
+	'findstr /b /i "[[] ####.BEGIN.UNIFIED.HOSTS.#### ####.END.UNIFIED.HOSTS.####" "%DIR%%INI%"'
 ) do (
-if !MARKED!==2 if /i not "%%0"=="#### END UNIFIED HOSTS ####" (set MARKED=-2) else (set MARKED=3)
-if !MARKED!==1 if /i not "%%0"=="#### BEGIN UNIFIED HOSTS ####" (set MARKED=-1) else (set MARKED=2)
-if "%%0"=="[DNS_HOSTS]" set MARKED=1
+	if !MARKED!==2 if /i not "%%0"=="#### END UNIFIED HOSTS ####" (set MARKED=-2) else (set MARKED=3)
+	if !MARKED!==1 if /i not "%%0"=="#### BEGIN UNIFIED HOSTS ####" (set MARKED=-1) else (set MARKED=2)
+	if "%%0"=="[DNS_HOSTS]" set MARKED=1
 )
 
 rem If the markings are not correct, explain why and exit
@@ -44,12 +44,12 @@ for /f "tokens=*" %%0 in ('findstr #.Date: "%DIR%%INI%"') do set OLD=%%0
 
 rem If the remote and local dates are not the same, update
 if "%OLD%"=="%NEW%" (
-echo You already have the latest version.
-choice /M "Would you like to update anyway?"
-if !ERRORLEVEL!==1 (goto Update) else (exit /b)
+	echo You already have the latest version.
+	choice /M "Would you like to update anyway?"
+	if !ERRORLEVEL!==1 (goto Update) else (exit /b)
 ) else (
-echo Your version is out of date
-goto Update
+	echo Your version is out of date
+	goto Update
 )
 
 :Wget
@@ -95,22 +95,22 @@ exit
 rem If the generic URL is in place and not a specific one, prompt the user to select one
 if not "%URL:~-4%"==".txt" (
 
-echo The Unified Hosts will automatically block malware and adware.
+	echo The Unified Hosts will automatically block malware and adware.
 
-choice /m "Would you also like to block fake news?"
-if !errorlevel!==1 set URL=!URL!f
+	choice /m "Would you also like to block fake news?"
+	if !errorlevel!==1 set URL=!URL!f
 
-choice /m "Would you also like to block gambling?"
-if !errorlevel!==1 set URL=!URL!g
+	choice /m "Would you also like to block gambling?"
+	if !errorlevel!==1 set URL=!URL!g
 
-choice /m "Would you also like to block porn?"
-if !errorlevel!==1 set URL=!URL!p
+	choice /m "Would you also like to block porn?"
+	if !errorlevel!==1 set URL=!URL!p
 
-choice /m "Would you also like to block social?"
-if !errorlevel!==1 set URL=!URL!s
+	choice /m "Would you also like to block social?"
+	if !errorlevel!==1 set URL=!URL!s
 
-if "!URL:~-1!"=="-" set URL=!URL:~,-1!
-set URL=!URL!.txt
+	if "!URL:~-1!"=="-" set URL=!URL:~,-1!
+	set URL=!URL!.txt
 )
 
 echo Updating blacklist...
@@ -121,21 +121,21 @@ set WRITE=1
 
 rem Rewrite DualServer.ini to a temporary file and inject new Unified Hosts after #### BEGIN UNIFIED HOSTS ####
 (
-for /f "tokens=1* delims=:" %%a in (
-'findstr /n .* "%DIR%%INI%"'
-) do (
-if !WRITE!==1 (
-if "%%b"=="" (echo.) else (echo %%b)
-if /i "%%b"=="#### BEGIN UNIFIED HOSTS ####" (
-%WGET% %URL%
-set WRITE=0
-)
-)
-if /i "%%b"=="#### END UNIFIED HOSTS ####" (
-echo %%b
-set WRITE=1
-)
-)
+	for /f "tokens=1* delims=:" %%a in (
+		'findstr /n .* "%DIR%%INI%"'
+	) do (
+		if !WRITE!==1 (
+			if "%%b"=="" (echo.) else (echo %%b)
+			if /i "%%b"=="#### BEGIN UNIFIED HOSTS ####" (
+				%WGET% %URL%
+				set WRITE=0
+			)
+		)
+		if /i "%%b"=="#### END UNIFIED HOSTS ####" (
+			echo %%b
+			set WRITE=1
+		)
+	)
 ) > "%DIR%%INI%.tmp"
 
 rem Delete the old DualServer.ini and replace it with the new one
@@ -147,11 +147,11 @@ echo Your blacklist has been updated
 echo The changes will not take effect until after DualServer is restarted
 choice /m "Would you like to restart DualServer now?"
 if !errorlevel!==1 (
-echo DualServer is being restarted...
-call :Service stop
-call :Service start
-echo Your DualServer has been successfully restarted with the new blacklist
-pause
+	echo DualServer is being restarted...
+	call :Service stop
+	call :Service start
+	echo Your DualServer has been successfully restarted with the new blacklist
+	pause
 )
 exit
 
