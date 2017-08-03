@@ -14,7 +14,7 @@ set DIR=%~dp0
 set INI=DualServer.ini
 
 rem Make sure Wget can be found
-if not exist %DIR%%WGETP% goto Wget
+if not exist %WGETP% goto Wget
 
 rem Make sure the DualServer.ini can be found
 if not exist %DIR%%INI% goto Ini
@@ -140,11 +140,15 @@ ren %DIR%%INI%.tmp %INI%
 
 rem Restart DualServer and exit
 echo Your blacklist has been updated
+echo The changes will not take effect until after DualServer is restarted
+choice /m "Would you like to restart DualServer now?"
+if !errorlevel!==1 (
 echo DualServer is being restarted...
 call :Service stop
 call :Service start
 echo Your DualServer has been successfully restarted with the new blacklist
 pause
+)
 exit
 
 rem Service control function with error handling
