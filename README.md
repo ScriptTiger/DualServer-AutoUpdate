@@ -37,4 +37,4 @@ Helpful Links:
 
 Default URL for your local DualServer: http://127.0.0.1:6789/
 
-The complete reference of DHCP options: https://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xhtml
+Official reference of DHCP options: https://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xhtml
