@@ -27,13 +27,7 @@ if not exist "%IGNORE%" (
 		echo # Ignore list written in literal expressions
 		echo # If you decide to delete the below entries, DO NOT delete these above comment lines
 		echo # If this file is left completely empty, the script will break
-		echo 127.0.0.1 localhost
-		echo 127.0.0.1 localhost.localdomain
-		echo 127.0.0.1 local
-		echo 255.255.255.255 broadcasthost
-		echo ::1 localhost
-		echo fe80::1%%lo0 localhost
-		echo 0.0.0.0 0.0.0.0
+		echo ^^^www.google.com=0.0.0.0$
 	) > "%IGNORE%"
 )
 
@@ -145,7 +139,7 @@ rem Rewrite DualServer.ini to a temporary file and inject new Unified Hosts afte
 		if !WRITE!==1 (
 			if "%%b"=="" (echo.) else (echo %%b)
 			if /i "%%b"=="#### BEGIN UNIFIED HOSTS ####" (
-				%WGET% %URL% | findstr /l /v /g:"%IGNORE%"
+				%WGET% %URL% | findstr /r /v /g:"%IGNORE%"
 				set WRITE=0
 			)
 		)
