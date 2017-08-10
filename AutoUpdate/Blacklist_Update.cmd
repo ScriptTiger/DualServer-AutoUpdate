@@ -12,12 +12,30 @@ set WGET="%WGETP%" -O- -q -t 0 --retry-connrefused -c -T 0
 set URL=https://raw.githubusercontent.com/ScriptTiger/DualServer/master/blacklist-
 set DIR=%~dp0
 set INI=DualServer.ini
+set IGNORE=%~dp0ignore.txt
 
 rem Make sure Wget can be found
 if not exist "%WGETP%" goto Wget
 
 rem Make sure the DualServer.ini can be found
 if not exist "%DIR%%INI%" goto Ini
+
+rem If the ignore list doesn't exist, make one
+rem This CANNOT be empty
+if not exist "%IGNORE%" (
+	(
+		echo # Ignore list written in literal expressions
+		echo # If you decide to delete the below entries, DO NOT delete these above comment lines
+		echo # If this file is left completely empty, the script will break
+		echo 127.0.0.1 localhost
+		echo 127.0.0.1 localhost.localdomain
+		echo 127.0.0.1 local
+		echo 255.255.255.255 broadcasthost
+		echo ::1 localhost
+		echo fe80::1%%lo0 localhost
+		echo 0.0.0.0 0.0.0.0
+	) > "%IGNORE%"
+)
 
 rem Initialize MARKED to 0 for no markings yet verified
 set MARKED=0
@@ -127,7 +145,7 @@ rem Rewrite DualServer.ini to a temporary file and inject new Unified Hosts afte
 		if !WRITE!==1 (
 			if "%%b"=="" (echo.) else (echo %%b)
 			if /i "%%b"=="#### BEGIN UNIFIED HOSTS ####" (
-				%WGET% %URL%
+				%WGET% %URL% | findstr /l /v /g:"%IGNORE%"
 				set WRITE=0
 			)
 		)
