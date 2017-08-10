@@ -25,7 +25,7 @@ Combining Steven Blacks Unified Hosts with DualServer allows anyone from small h
 
 AutoUpdate for DualServer Unified Hosts blacklist:
 
-https://github.com/ScriptTiger/DualServer/blob/master/AutoUpdate.zip
+https://github.com/ScriptTiger/DualServer/raw/master/AutoUpdate.zip
 
 While the blacklists will work for anyone running DualServer, the AutoUpdate portion of this repo is only for Windows users. If you download the AutoUpdate.zip and extract the contents to your DualServer root, the same directory as your DualServer.ini, it can update your DualServer automatically depending on your preferences without requiring you to have a local git repo of this project. If you plan to always use the same blacklist, you can edit the "URL" variable at the top of the script with the direct URL of the blacklist you prefer and this will bypass having to be prompted for you preferences later.
 
