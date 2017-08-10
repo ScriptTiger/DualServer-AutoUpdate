@@ -1,0 +1,1781 @@
+﻿----------------------- Page 1-----------------------
+
+                                 Dual DHCP DNS Server  
+
+  
+
+                              Dual  
+
+DHCP/DNS Server  
+
+                                            
+
+                                                                         
+                                            
+                                            
+          Installation and Configuration  
+
+                                      Edison 2  
+
+----------------------- Page 2-----------------------
+
+                                                                         Dual DHCP DNS Server  
+
+1   Contents  
+
+  
+
+1        Contents ................................................................................................................................................ 2  
+
+2        Preface .................................................................................................................................................. 5  
+
+3        Installation ............................................................................................................................................ 6  
+
+      3.1        Windows Installation .................................................................................................................... 6  
+
+      3.2        Windows Compiling ...................................................................................................................... 7  
+
+      3.3        Linux Installation ........................................................................................................................... 7  
+
+      3.4        Linux Compiling ............................................................................................................................. 7  
+
+      3.5        Linux Daemonizing ........................................................................................................................ 7  
+
+4        Configuration ........................................................................................................................................ 9  
+
+      4.1        SERVICES ....................................................................................................................................... 9  
+
+      4.2        LISTEN_ON .................................................................................................................................... 9  
+
+      4.3        LOGGING ..................................................................................................................................... 10  
+
+      4.4        DOMAIN_NAME .......................................................................................................................... 10  
+
+      4.5        DNS_HOSTS ................................................................................................................................. 11  
+
+      4.6        ALIASES ........................................................................................................................................ 12  
+
+      4.7        WILD_HOSTS ............................................................................................................................... 12  
+
+      4.8        DNS_ALLOWED_HOSTS ............................................................................................................... 12  
+
+      4.9        CONDITIONAL_FORWARDERS..................................................................................................... 13  
+
+        4.10     FORWARDING_SERVERS ............................................................................................................. 13  
+
+        4.11     MAIL_SERVERS ............................................................................................................................ 14  
+
+        4.12     ZONE_REPLICATION .................................................................................................................... 14  
+
+        4.13     TIMINGS ...................................................................................................................................... 15  
+
+        4.14     RANGE_SET ................................................................................................................................. 15  
+
+        4.15     Filtering  DHCP Ranges ................................................................................................................. 16  
+
+        4.15.1            Mac Range Filters ................................................................................................................ 16  
+
+        4.15.2           Vendor Class and User Class Filters  .................................................................................... 16  
+
+        4.15.3           Subnet Selection Filters....................................................................................................... 17  
+
+        4.16     GLOBAL_OPTIONS ....................................................................................................................... 18  
+
+        4.17     Static Host Sections ..................................................................................................................... 18  
+
+----------------------- Page 3-----------------------
+
+                                                                  Dual DHCP DNS Server  
+
+    4.18        HTTP_INTERFACE ........................................................................................................................ 19  
+
+5       Running of Dual Server ....................................................................................................................... 20  
+
+     5.1       Windows ..................................................................................................................................... 20  
+
+     5.2        Linux ............................................................................................................................................ 21  
+
+     5.3       Starting Sequence for Primary/Secondary Mode ....................................................................... 22  
+
+6       Process of Allotting Addresses ............................................................................................................ 23  
+
+7       Process of Resolving Addresses .......................................................................................................... 25  
+
+     7.1       General ........................................................................................................................................ 25  
+
+     7.2        Dual Server Resource Records .................................................................................................... 25  
+
+          7.2.1        Records loaded from DualServer.ini files. ........................................................................... 25  
+
+          7.2.2        Records added by DHCP Service ......................................................................................... 26  
+
+          7.2.3        Records replicated from Primary Server ............................................................................. 26  
+
+          7.2.4        Cached Records ................................................................................................................... 26  
+
+     7.3        Dual Server Queries Supported  .................................................................................................. 26  
+
+     7.4        Forwarding .................................................................................................................................. 26  
+
+          7.4.1        Non-Authorized Forwarding ............................................................................................... 27  
+
+          7.4.2        Authorized Forwarding ....................................................................................................... 27  
+
+          7.4.3        Conditional Forwarding ....................................................................................................... 27  
+
+          7.4.4        Non-Authorized entries and queries. .................................................................................. 27  
+
+8       Dual Server in Multi Zone Domain. ..................................................................................................... 28  
+
+9       Replicated Operation. ......................................................................................................................... 30  
+
+     9.1       Co-Ordination between DHCP and DNS components ................................................................ 30  
+
+     9.2        DHCP Co-Ordination between two instances of Dual Server ..................................................... 30  
+
+     9.3        DNS Co-ordination between two instances of Dual Server. ....................................................... 30  
+
+     9.4        Replication Schemes ................................................................................................................... 31  
+
+          9.4.1        Dual Server with only DNS Service as Primary and Secondary Server. ............................... 31  
+
+          9.4.2        Dual Server with DNS and DHCP as Primary Server and Dual Server with only DNS as  
+                       Secondary Server ................................................................................................................ 31  
+
+          9.4.3        Dual Server with DNS and DHCP as Primary Server and third party DNS server as  
+                       Secondary Server. ............................................................................................................... 31  
+
+          9.4.4        Dual Server as secondary server and third party server as primary server. ....................... 32  
+
+          9.4.5        Dual Server with only DHCP Service as Primary and Secondary Server.  ............................ 32  
+
+----------------------- Page 4-----------------------
+
+                                                                   Dual DHCP DNS Server  
+
+        9.4.6          Dual Server with DNS and DHCP as Primary Server and Dual Server with DNS and DHCP as  
+                       Secondary Server ................................................................................................................ 32  
+
+        9.4.7          Dual Server with only DNS (or third party DNS) as Primary and Dual Server with DHCP as  
+                       Secondary. ........................................................................................................................... 32  
+
+    9.5        Timings for Replicated Operation ............................................................................................... 32  
+
+10          DHCP OPTIONS ................................................................................................................................ 33  
+
+      10.1     Specifying options and values in Dual DHCP DNS Server ............................................................ 33  
+
+      10.2      List of DHCP Options Names (in Dual DHCP DNS Server) ........................................................... 35  
+
+      10.3      Dual DHCP DNS Server specific DHCP Header Field Options ...................................................... 37  
+
+11          Configuration Tips ........................................................................................................................... 38  
+
+12          Debugging ....................................................................................................................................... 40  
+
+      12.1     Windows ..................................................................................................................................... 40  
+
+      12.2      Linux ............................................................................................................................................ 40  
+
+  
+
+                                                                                     
+
+                                                     
+
+----------------------- Page 5-----------------------
+
+                                                    Dual DHCP DNS Server  
+
+2   Preface  
+
+  
+
+DHCP Server allots the IP addresses to computers, while DNS server resolves them from hostname.  
+
+ You need DHCP Server if you do not want to manually maintain IP Addresses or you have less IP  
+Addresses than number of machines you have, as dynamic DHCP Server will recycle IP Addresses on  
+machines.  
+
+DNS Server is needed for resolving hostnames to their IP addresses. Normally your ISP will provide you  
+with DNS Service, which will resolve external names.   
+
+Now if you have home/small office network with internal  machines, your ISP's DNS Server will not have  
+this list and these machines won’t be resolved from each other.  You may use your own DNS Server  but  
+maintaining IP addresses against the local hostnames will be tedious task. Windows do provide slow  
+NBNS protocol to overcome this issue but Linux/Unix machines don’t use this. Other solution is to  
+configure Dynamic Updates but configuring it is too complex.  
+
+Dual DHCP Server is straight answer to above issues. It is combined DHCP DNS Servers. DNS Server will  
+resolve external names and it would also resolve DHCP Server allotted hosts to their IPs automatically.  
+You can also use this server as DHPC Server only or caching DNS Server only.    
+
+The salient features are:  
+
+         Either DHCP or DNS or Both Services can be used.  
+         DHCP hosts automatically added to DNS, If both services used  
+         DHCP Supports 125 ranges, all options, range specific options  
+         DHCP Support infinite number of Static DHCP Host with host specific options  
+         DNS Supports Zone Transfer and Zone Replication.  
+         DHCP Supports BOOTP Relay Agents, PXE Boot, BOOTP.  
+         Dynamically Detects Listening Interfaces, can listen on 125 interfaces  
+         HTTP Interface for viewing Lease Status.  
+         Filtering of Ranges by Mac Range, Vendor Class and User Class  
+         Very easy configuration, no Zone files required.  
+         Allows Fully Replicated operations for both DHCP and DNS  
+         Very Low Memory and CPU use  
+         Can be installed and used by person not having DNS/DHCP Concepts  
+
+   
+
+                                         
+
+----------------------- Page 6-----------------------
+
+                                                         Dual DHCP DNS Server  
+
+3   Installation  
+3.1   Windows Installation  
+
+Installation of Dual Server on Windows is straightforward. Just run the Installer and it installs.   
+
+                                                                                                    
+
+You should permit it to Install as Windows Service by keeping the checkbox.  
+
+                                                                                                                        
+
+If you did not install as service, still want to do that, go to installation directory (default c:\DualServer)  
+and run InstallService.exe, which will install it as Windows Service. If you want to remove the Windows  
+
+----------------------- Page 7-----------------------
+
+                                                    Dual DHCP DNS Server  
+
+Service but just want to keep the install, you can call utility RemoveService.exe. You need to run these  
+utilities as Administrator. You can right click on these files and choose “Run as Administrator”.  
+
+To fully uninstall Windows version, just go to control panel and use the Programs->Uninstall. It will  
+uninstall both Windows Service and program itself.  
+
+3.2   Windows Compiling  
+
+It is not needed to recompile Dual DHCP DNS Server on windows version. 64 bit versions can also run  
+this 32 bit executable.   However the command for compiling is:-  
+
+g++ -o DualServer.exe DualServer.cpp -lwsock32 -liphlpapi -lws2_32  
+
+3.3     Linux Installation  
+
+Expand the GZ archive to any directory (preferably /opt/dualserver ) and change the permission of file  
+dualserverd with chmod 755 dualserverd, if needed. Linux Installation is easy too but in Linux, we need  
+to create script files for daemonization. Also compiling may be needed.   
+
+Warning: dualserver (Linux version) has been designed to run only on Linux Operating System and may  
+not run on other operating systems like BDS,  Mac and Solaris.  
+
+3.4     Linux Compiling  
+
+The enclosed dualserver executable file may only  run on Intel Linux 32 bit version.  For 64 bit Linux  
+system, you can try:-  
+  
+#g++ dualserverd.cpp -odualserverd -lpthread  
+#g++ dualserverd.cpp -odualserverd -lpthread -lgcc_s  
+  
+You need C++ compiler for Versions 3 onwards, as these versions use STL. If you have only C Compiler,  
+you need to download and use Version 2.1 only.   
+  
+
+3.5     Linux Daemonizing  
+
+If your Linux flavor supports chkconfig command, you can use the enclosed  rc.dualserver file to add the  
+service. Just create a symbolic link /etc/init.d/dualserver to /opt/dualserver/rc.dualserver in init.d and  
+make it executable. Also change the file paths (depending on where you have installed the executive  
+and log file directory) in this file. Then you can use chkconfig command to add the daemon:-  
+
+#ln -s /opt/dualserver/rc.dualserver /etc/init.d/dualserver  
+#chmod 755 /etc/init.d/dualserver  
+#chkconfig --add dualserver  
+#chkconfig dualserver on  
+
+----------------------- Page 8-----------------------
+
+                                                          Dual DHCP DNS Server  
+
+Last command is for automatic start/stop only. That’s all you may need on such Linux flavors.  
+
+Some of the Linux flavors like debian/ubuntu support rcconf command, which is very similar to  
+chkconfig command (You may need some changes in the comments section of rc.dualserver file).  If your  
+flavor doesn’t support chkconfig or rcconf you can manually do:-   
+
+#ln -s /opt/dualserver/rc.dualserver /etc/rc.d/dualserver  
+#chmod 755 /etc/rc.d/dualserver  
+
+For automatic start Add the following line to /etc/rc.d/rc.local file or /etc/inittab file or /etc/rc.d/rc.inet2  
+file (preferred).  
+
+# Start the Dual DHCP DNS Server daemon:  
+if [ -x /etc/rc.d/rc.dualserver ]; then  
+/etc/rc.d/rc.dualserver start  
+fi  
+  
+
+                                              
+
+----------------------- Page 9-----------------------
+
+                                                        Dual DHCP DNS Server  
+
+4   Configuration  
+
+  
+The entire configuration for Dual Server is done in file DualServer.ini (or dualserver.in in Linux). You  
+should find and keep this file in your installation directory in Windows. In Linux you can keep this file at  
+any location. Configuration file has many sections. DNS configuration is covered in 4.2 to few sections  
+and DHCP configuration is covered in last few sections. These sections are described further. Comments  
+in red are for guiding purpose only and should not be copied in actual  DualServer.ini file.  Each section  
+have many entries in the form Name=Value. Any entry starting with punctuation mark is a comment and  
+such entry will be ignored.  
+  
+You need not specify all your entries in this ini file; you can create additional files (only one for each  
+section).  Then just specify single entry under the section like:-  
+  
+[DNS_HOSTS]  
+@my_hosts_file.xxx  
+  
+#This is file my_hosts_file.xxx  
+OracleServer.yahoo.com=192.168.0.43  
+DNS=192.168.0.1  
+cpltcaxd02b=192.168.0.2  
+homehost.external.com=187.178.187.178  
+strange=192.168.6.11  
+soho=192.168.0.111  
+www=12.67.4.3  
+  
+Now section will be loaded from specified file my_hosts_file.xxx. You can give full path or just file name.  
+If just filename is given, it should be put in directory where this ini file is. Do not give section name again  
+in included file, but comments can still be given. You cannot make SECTION's some entries here and  
+some in included file. Once include file is used, SECTION's all entries will be read only from included file.  
+  
+4.1   SERVICES  
+
+You can use Dual Server as DHCP Server only or DNS Server only or both. Using both services only brings  
+the star feature alive, means DHCP allotted hosts are automatically added to DNS Service. If you use  
+both services you don’t have to configure the Dynamic Updates.  
+
+[SERVICES]  
+DNS                                                                        #This entry enables DNS Service of Dual Server  
+DHCP                                                                       #This entry enables DHCP Service of Dual Server  
+
+           
+4.2      LISTEN_ON  
+
+  
+This section is common to both DHCP Service and DNS Service. This section restricts the server to listen  
+for DHCP and DNS requests on selected interfaces. There may be many interfaces on multi-homed  
+servers.  Out of these interfaces, you can still restrict which interface(s) should listen for requests.  
+
+----------------------- Page 10-----------------------
+
+                                                      Dual DHCP DNS Server  
+
+DualServer only listens on Static Interfaces which means the IP address is fixed and not obtained from  
+another DHCP Server. Any dynamic interfaces specified here will be ignored. If no interface is specified  
+here, Dual Server listens on all Static Interfaces.  
+
+[LISTEN_ON]  
+192.168.0.1  
+192.168.55.23  
+  
+4.3     LOGGING  
+
+Logging level should be specified under section [LOGGING]. Logging will be done only if run as Service.  
+LogLevels can be set as None, Normal or All. It is advisable to keep logging to Normal. Normal means  
+errors  and DHCP renewal messages. None and All are self explanatory. Log levels need to  be separately  
+specified for DNS and DHCP Services.  
+  
+[LOGGING]  
+DNSLogLevel=Normal                                                                #Can be None, Normal or All  
+DHCPLogLevel=Normal                                                               #Can be None, Normal or All  
+
+          
+4.4     DOMAIN_NAME  
+
+All the DNS queries are fqdn or in other words it has components hostname.zone.domain.com. Domain  
+Name is specific to each site and DNS Server figures out by checking the domain name part of query if it  
+local query or external query.  DNS Server will resolve the local queries from its own set of records and  
+forward the external query to forwarding server.   Entry specified in this section is the default domain for  
+all the bare hosts and aliases specified under previous sections. Suppose you specify the domain name  
+as mydomain.com then an entry in [DNS_HOSTS] section like www=192.168.55.3 will be treated as  
+www.mydomain.com=192.168.55.3. Just specifying a domain name do not make this server authorized  
+for the domain. To make this server authority for domain, you need to specify both forward zone and  
+reverse zone with = sign.   
+
+[DOMAIN_NAME]  
+workgroup.com  
+   
+Above entry will make the workgroup.com as the default domain for this server but still unfound queries  
+may be forwarded to forwarding servers, if not resolved locally.  
+  
+[DOMAIN_NAME]  
+workgroup.com=55.168.192.in-addr.arpa  
+  
+Once a server is authorized, all the entries under [DNS_HOSTS] should fall in one of the authorized  
+zones.  
+
+----------------------- Page 11-----------------------
+
+                                                     Dual DHCP DNS Server  
+
+This entry will make the server an authority for both zones workgroup.com and 55.168.192.in-addr.arpa  
+and any query with above domain names will only be locally resolved and never be forwarded to  
+forwarding servers. Authorized server will also return SOA, NS and AXFR queries.   
+
+          
+4.5     DNS_HOSTS  
+
+Section [DNS_HOSTS] is list of all the hostnames, which will be resolved by Dual Server. Each host should  
+be specified with it’s IP address. Dual Server loads hosts from here to it’s memory and resolves to give IP  
+against the hostname. Also Dual Server will resolve the IP address to it’s hostname, which is called  
+reverse lookup. You don’t have to make reverse lookup entries, these are automatic.  There is no limit to  
+number of entries here.  Host here can be bare names (without domain extension) or with domain  
+extension. Bare names assume default domain name specified under [DOMAIN_NAME]. Some names  
+are repeated with different IP, which is Okay, as hosts can have multiple IPs. There is no limit to number  
+of entries here.  
+  
+[DNS_HOSTS]  
+OracleServer.example.com=192.168.55.45  
+DNS=192.168.55.1  
+DNS=192.168.55.2  
+cpltcaxd02b=192.168.55.2  
+homehost.ext.com=187.178.187.178  
+strange=192.168.6.11  
+soho=192.168.0.111  
+  
+When the Dual Server is in replication mode (two instances are used one Primary and other Secondary) ,   
+the entries are only read from  Primary Server’s configuration file and Secondary Server gets these  
+entries only through zone transfer replication process.  Authorized Dual DHCP DNS Server has one  
+forward zone and one reverse zone.  
+  
+Dual Server allows you to make entries in this section which may not belong to it’s zones.  However  
+when under replicated operation;  Dual Server will ignore entries which are not part of its zones. The  
+reason for this is that these entries cannot be replicated to secondary server.  
+  
+It may happen that entry may match with forward zone but not in reverse zone. In this case entry will be  
+added to forward zone but will not be added in reverse zone. Also if an entry do not match forward but  
+matches reverse zone, it will be added to reverse zone but not to forward zone.   For example if you  
+specify your zones as mydomain.com=55.168.192.in-addr.arpa under domain name then entry  
+www=192.168.55.23  or www.mydomain.com=192.168.55.23 will be added to both forward and reverse  
+zones. However an entry like www.otherdomain.com=192.168.55.45 only will be added to reverse zone.  
+Similarly entry database.mydomain.com=10.5.67.231 will only be added to forward zone as ip is out of  
+reverse zone. Entry like www.somedomain.com=192.168.56.23 will not be added into any zones.  
+
+----------------------- Page 12-----------------------
+
+                                                     Dual DHCP DNS Server  
+
+4.6   ALIASES  
+
+You can use alias names to hostnames specified above. For example if you have previously specified the  
+hostname=192.168.4.6 in [DNS_HOSTS] section, you can add alias here as newhost=hostname. Now  
+your DNS query for both hostname and newhost will be resolved to IP 192.168.4.6 . Left side of = sign is  
+the alias name while right side of = is canonical name or the real name, also called cname. However you  
+can also create another alias for an alias. Alias name should be bare name or need to match the default  
+or authorized zone, but cname can be from any zone.  There is no limit to number of entries here.  
+
+[ALIASES]  
+MyHost=HomeHost  
+DBServer=DB2Server.com  
+gmail=gmail.google.com  
+workgroup=www  
+dns1 = dns  
+  
+
+4.7   WILD_HOSTS  
+
+Wild host resolve names based on wild card match. Wild card char are * and ?. Axfr/Zone queries do not  
+include wild hosts and these are not replicated from Primary to Secondary Server. You need to create  
+WILD_HOSTS entries on both Primary and Secondary Servers.  Only 128 max wild entries are allowed in  
+version  6.96  
+  
+[WILD_HOSTS]  
+*.google.com=64.136.20.120  
+www.*.com=127.0.0.1  
+*xyz.com*=4.2.2.3  
+*.hostnotfound.com=0.0.0.0  
+  
+You can give the target IP as 0.0.0.0 if “host not found” response is required.  
+  
+
+4.8     DNS_ALLOWED_HOSTS  
+
+These entries restrict the access to DNS Server. There are two different protocols are used for accessing  
+DNS records, UDP and TCP/IP.  UDP is normally used for hostname and reverse lookup while TCP/IP is  
+used for zone transfer. SOA and NS queries can be done using any protocols. This section  
+allows/restricts  UDP queries. Please specify the range of hosts which will be able to query this server.  
+Hosts "queried for" has nothing to do with these ranges. 32 max ranges can be specified. DHCP ranges  
+are automatically added, you don’t have to add them again here. You can simply allow all hosts  by  
+specifying single range 1.0.0.1-255.255.255.254 as second example below:-  
+                                           
+
+----------------------- Page 13-----------------------
+
+                                                      Dual DHCP DNS Server  
+
+[DNS_ALLOWED_HOSTS]  
+192.168.0.1-192.168.255.254  
+1.0.0.1-255.255.255.254  
+  
+
+4.9   CONDITIONAL_FORWARDERS  
+
+All the non local queries need to be resolved from Forwarding Servers. Generally all external queries are  
+forwarded to some external DNS Server (usually  provided by your ISP). Dual Server forwards non local  
+queries to Default External Servers and caches the results. Dual Server also allows you to forward  
+selected queries to specific DNS Servers, based on matching the  last part of query. This is sometimes  
+called as DNS Proxy. Only 128 entries allowed here. For example you want to forward all queries with  
+domain name myzone.mydomin.com to your special DNS Server 192.168.55.45. You can make an entry  
+as:-  
+  
+[CONDITIONAL_FORWARDERS]  
+myzone.mydomain.com=192.168.55.45  
+  
+Now queries like a.myzone.mydomain.com will be forwarded to 192.168.55.45 but all other external  
+queries still will  be forwarded to servers under [FORWARDING_SERVERS].  You can also make entries  
+here for reverse lookup like 34.158.195.in-addr.arpa=192.168.55.45 so that reverse queries like  
+11.34.158.195.in-addr.arpa can also be forwarded to your special DNS Server  192.168.55.45. This  
+feature helps in creating Child Zones. You can specify up to 2 DNS Servers (separated by comma) for  
+each entry.  Please see the related topic for using Dual Server under Multizone Operation.  
+  
+[CONDITIONAL_FORWARDERS]  
+zone1.workgroup.com=192.168.1.1  
+1.168.192.in_addr.arpa=192.168.1.1  
+zone2.workgroup.com=192.168.2.1,192.168.2.2  
+2.168.192.in_addr.arpa=192.168.2.1,192.168.2.2  
+google.com=8.8.8.8  
+  
+
+4.10 FORWARDING_SERVERS  
+
+These are default forwarding  DNS Servers and usually hosted by your ISP. Dual Server do caches the  
+external hosts for a duration which is equal to expiry, as returned in the response from forwarding  
+servers. Up to 125 servers can be specified here. However only the last successful server will be  
+repeatedly used unless it fails (then next and so on).  Remember external queries will be forwarded to  
+these servers only if there are no matching servers under [CONDITIONAL_FORWARDERS]. Only 125 max  
+entries allowed here.  
+                                           
+
+----------------------- Page 14-----------------------
+
+                                                     Dual DHCP DNS Server  
+
+[FORWARDING_SERVERS]  
+192.168.0.1  
+10.10.10.1  
+
+  
+4.11 MAIL_SERVERS  
+
+These are default mail servers for domain. Entries should be in form HOST=Priority. Hosts can be local or  
+external. Up to 5 servers can be specified. Mail Servers will be added as attributes mXRecord in forward  
+zone only. The hostnames below need not be internal.  
+  
+[MAIL_SERVERS]  
+MailServer1.com=10  
+MailServer2.net=20  
+  
+4.12 ZONE_REPLICATION  
+
+Normally for redundancy, there are two DNS Servers are used one is  primary and other secondary. To  
+make sure both DNS Servers have identically information, zone replication scheme is used. All the  
+entries are done on primary server and secondary server automatically replicates entries from  primary  
+server. This is done by DNS Protocol’s zone transfer functionality. On sending axfr type query, full zone is  
+sent, zone is all entries having same zone name extension.  Periodically Secondary Server send axfr query  
+for zone and copies all entries returned by primary server, discarding it’s all previous entries.  Zone  
+replication is done periodically after lapse of a time called Refresh Time. Make sure the Dual Server(s) do  
+listen on these interfaces.  
+
+[ZONE_REPLICATION]  
+Primary=192.168.55.254                                                 #Primary or Master zone DNS Server  
+Secondary=192.168.55.23                                                #Secondary or Replicated zone DNS Server  
+  
+Other than secondary server, some clients may also need to pull full zone or there may be some more  
+servers who replicate or pull full zone. DNS Servers of other vendors can also be specified as  
+AXFRClients. These clients/servers (max 14) can also be specified in this section as AXFRClient  like:-  
+
+[ZONE_REPLICATION]  
+Primary=192.168.55.254  
+Secondary=192.168.55.23  
+AXFRClient=192.168.0.1                                                 #This server/client can pull zones too  
+AXFRClient=192.168.0.3                                                 #This server/client can pull zones too  
+AXFRClient=192.168.0.4                                                 #This server/client can pull zones too  
+AXFRClient=192.168.0.6                                                 #This server/client can pull zones too  
+  
+For DHCP Replicated operation too the Primary and Secondary Servers should be specified here too.  
+
+----------------------- Page 15-----------------------
+
+                                                       Dual DHCP DNS Server  
+
+  
+
+4.13 TIMINGS  
+
+Default host expiry is one kind of time  DNS Servers need. DHCP Server needs maximum lease time. Both  
+of these have single entry called AddressTime.  Zone replication additionally needs Refresh, Retry, Expire  
+and Minimum time parameters. All these times need to be added under TIMINGS section.  
+
+[TIMINGS]  
+AddressTime=360                #This is DNS host expiry time for all local hostnames also Lease Time for DHCP  
+Refresh=3600                   #Secondary DNS Server’s refresh time  
+Retry=10                       #If zone replication fails, retry after this time  
+Expire=36000                   #Zone expires after this time, if not refreshed  
+Minimum=20                     #Minimum host time  
+  
+For testing of DNS Caching, there are MinCacheTime and MaxCacheTime can be specified here.  
+  
+The proceeding Sections are  DHCP configuration Sections. Clients can be allotted addresses in two ways,  
+dynamically from DHCP Range or statically. For static addresses, client section needs to be created for  
+each static client against its MAC Address. BOOTP clients are always static.   
+  
+
+4.14 RANGE_SET  
+
+DHCP Ranges are required for Dynamic Address allocation. The actual DHCP Ranges are grouped into  
+[RANGE_SET]s, so that range specific options can be specified for a group of ranges at one place.  Each  
+[RANGE_SET] can contain actual DHCP Ranges, Range specific options and Range Filters. Options have  
+option tags (1-254) and values can be specified many different ways. Please Refer to DHCP Options. You  
+can specify one or more ranges in each [RANGE_SET] section, in format specified.  DHCP Server will allot  
+addresses from these ranges. Static Hosts and BootP clients do  not need/use  ranges.  You need not  
+specify any [RANGE_SET] if all clients are Static.  Next is example of simple DHCP Range and may be  
+sufficient for home/SOHO use. The total ranges together in all [RANGE_SET]s is limited to 125 and  
+there can also be 125 [RANGE_SET]s max.  
+  
+[RANGE_SET]  
+DHCPRange=192.168.0.1-192.168.254                             #Actual DHCP Range  
+SubnetMask=255.255.255.0                                      #Subnet Mask for range  
+Router=192.168.0.1                                            #Default Gateway  
+AddressTIme=500                                               #Lease Expiry Time after which client will renew.  
+  
+The SubnetMask and Router are range specific options and will be added to all DHCP responses falling in  
+this range. You need not specify these options in [RANGE_SET] if you have already specified in  
+[GLOBAL_OPTIONS] section.  Keywords SubnetMask and Router are option names (specific to Dual  
+Server) but clients are sent with option tags. You can also use option tags directly as below.  
+
+----------------------- Page 16-----------------------
+
+                                                       Dual DHCP DNS Server  
+
+   
+[RANGE_SET]  
+DHCPRange=192.168.0.1-192.168.254                              #Actual DHCP Range  
+1=255.255.255.0                                                #Subnet Mask for range  
+3=192.168.0.1                                                  #Default Gateway  
+51=500                                                         #Lease Expiry Time after which client will renew.                           
+  
+You can specify as many options in a [RANGE_SET]. Option values can also be specified multiple ways  
+please refer to DHCP Options topic. You can also filter [RANGE_SET]s based on client sent values Mac  
+Address, Vendor Class and User Class. This is advance topic and please refer to Range Filters topic for  
+more info. Below is an example of a filtered range.  
+  
+
+4.15 Filtering DHCP Ranges  
+
+You can select RANGE_SETs based on filter conditions. If any entry in a RANGE_SET has matched the  
+filter condition then only that RANGE_SET will be available to client (in fact all RANGE_SETs which has  
+matched the filter condition will be available to client). Remaining RANGE_SETs will no more be  
+available to that client. These filters although looks like options, but are not actual options but filter  
+based on client sent values. Hence these filters never go to client with DHCPOFFER or DHCPACK  
+messages.  
+  
+
+4.15.1 Mac Range Filters  
+Mac Range Filters Enable a RANGE_SET (All the ranges within a RANGE_SET) for a given Mac Range.  
+
+FilterMacRange=00:0d:60:c5:4e:00-00:0d:60:c5:4e:ff  
+  
+If above filter is specified (as option), the range of this RANGE_SET will be selected if Mac Address falls in  
+this range. You can add upto 32 Mac Range filters in each RANGE_SET. Multiple entries work like “or”  
+operation. In other words, RANGE_SET will be available to all Mac Addresses falling in any  
+FilterMacRange.  
+
+4.15.2 Vendor Class and User Class Filters  
+Vendor Class (option 60) and user Class (option 77) are sent by client in DHCPDISCOVER. These values  
+can be used to select the RANGE_SET. These filters require exact case sensitive match to value specified  
+but if multiple values can be added to each RANGE_SET, the client sent values need to match with any  
+one of specified values.  You can use string, byte array or hex bytes for specifying values.  
+  
+Vendor Class is set by manufacturer and has limited use of segregating the DHCP Ranges, for example  
+Windows and Linux computers. User class can be set manually for a computer and can be very  
+effectively used to segregate computers. For example you may segregate your computers and customer  
+computers; you can set the User Class for all your computers to some value. Now Filter the DHCP Range  
+with this value. Now a particular range will be available to your computers and default range will only be  
+
+----------------------- Page 17-----------------------
+
+                                                    Dual DHCP DNS Server  
+
+available to customer’s computers. Using user class, you can even use different range for each of your  
+departments. As you can see different RANGE_SET can be selected for different User Class, you can also  
+choose other options for RANGE_SET. You can have different DNS Server, Proxy Server, Gateway Server  
+etc. You can deny internet access to some computers based on User Class.  
+  
+[RANGE_SET]  
+DHCPRange=192.168.12.231-92.168.12.240  
+FilterVendorClass="MSFT 5.0"  
+FilterUserClass=”home”  
+DomainServer=                                               #Blank option values ensure this option is never sent  
+Router=                                                     #Blank option values ensure this option is never sent  
+  
+[RANGE_SET]  
+DHCPRange=192.168.12.1-92.168.12.230  
+DomainServer=192.168.12.1  
+Router=192.168.12.1  
+  
+Blank option values ensure these options are not complimented even from GLOBAL_OPTIONS.  
+
+4.15.3 Subnet Selection Filters  
+When the DHCPDISCOVER arrives from local subnet, the listening interface’s IP address is used to find  
+matching DHCP Range. If DHCPDISCOVER comes from another subnet, Relay Agent’s IP address is put in  
+the DHCPDISVCOVER by Relay Agent. Now this IP is used to find matching DHCP Range. If subnet  
+selection IP (option 118) is sent by client, this IP is used to find the matching DHCP Range. The  
+preference goes like:-  
+
+     1.   Subnet Selection IP (option 118)   
+     2.   Relay Agent IP  
+     3.   Listening Interface’s IP  
+
+This is built in logic and no special filter is required for DHCP Range Selection. However you can override  
+this feature and force a particular range set using the filter FilterSubnetSelection. Using this filter will  
+force a RANGE_SET based on matching of  IP against FilterSubnetSelection.  But what IP is matched  
+against IP specified against this filter. It is done in same sequence as above. If option 118 is sent by client  
+this IP value is matched to filter value. If option 118 is not sent and relay agent IP is available, then relay  
+agent IP is matched against FilterSubnetSelection value. If relay agent IP is also not available, listening  
+interface’s IP is matched to FilterSubnetSelection value. In one RANGE_SET, 32 FilterSubnetSelection  
+values can be specified and any of these values can match for the RANGE_SET to qualify.  
+
+[RANGE_SET]  
+DHCPRange=192.168.12.1-92.168.12.230  
+DomainServer=192.168.12.1  
+Router=192.168.12.1  
+
+----------------------- Page 18-----------------------
+
+                                                      Dual DHCP DNS Server  
+
+FilterSubnetSelection=192.168.12.125  
+FilterSubnetSelection=192.168.13.125  
+TargetRelayAgent=192.168.11.2  
+  
+The last item TargetRelayAgent above, forces the DHCPOFFER to be routed to Relay Agent 192.168.11.2.  
+Normally the DHCPOFFER will be routed to Relay Agent, from where it came, but can be overridden with  
+this.  
+  
+
+4.16 GLOBAL_OPTIONS  
+
+If some of DHCP Options are common to all the DHCP Ranges and Static Clients, you can specify these  
+under [GLOBAL_OPTIONS] and you need not specify these options in [RANGE_SET] or under static  
+clients. However if value is different for specific client or RANGE_SET, you can override values for  
+specific host or RANGE_SET. DHCP Options under these sections would supplement (but not replace)  
+client specific options and [RANGE_SET] options.  Here only some examples are given, for complete list  
+please refer DHCP Options topic.  
+  
+[GLOBAL_OPTIONS]  
+SubNetMask=255.255.255.0  
+DomainServer=192.168.1.1, 192.168.1.2  
+Router=192.168.1.1  
+RenewalTime=0  
+RebindingTime=0  
+  
+
+4.17 Static Host Sections  
+
+You can create Static Host Sections for hosts having fixed IP addresses. A new section against it’s  MAC  
+Address need to be created for each client. You can specify client specific options under the client  
+section. You need to specify IP Address only.  If IP is not specified for a Static Host, this host would not be  
+able to get an IP from Dual Server. (This feature can be used to prevent some clients from getting any IP  
+from this Server). All options are optional.  For  BOOTP requests, only these options (specified against  
+Host) would be sent.  However for DHCP requests, missing Options will be supplemented first from  
+matching [RANGE_SET] options (if IP falls in any range) then from [GLOBAL_OPTIONS].   
+
+Following example below is simple most section where only IP is specified. Other options will be  
+supplemented from [DHCP_RANGE] and [GLOBAL_OPTIONS].  
+
+[00:41:42:41:42:00]                                           #This is a client with MAC addr 00:41:42:41:42:00  
+IP=192.168.0.200                                              #Only IP is specified for this client  
+  
+This is another example with some client specific options  
+[00:41:42:41:42:05]                                           #This is a client with MAC addr 00:41:42:41:42:05  
+
+----------------------- Page 19-----------------------
+
+                                                       Dual DHCP DNS Server  
+
+IP=192.168.0.211                                               #IP Address for this client  
+HostName=TestHost                                              #DHCP will offer this host name to client  
+DomainServer=10.5.6.90, 11.4.5.6                               #Domain Name Server for client  
+Router=11.5.6.7, 4.6.7.34                                      #Default Gateyway for client  
+  
+Dual Server will never allot any address to 00:41:42:41:42:76 as no IP has been specified  
+[00:41:42:41:42:76]                                            #This is a client with MAC addr 00:41:42:41:42:00  
+IP=0.0.0.0                                                     #No  IP is specified for this client  
+  
+
+4.18 HTTP_INTERFACE  
+
+Dual Server publishes a page showing the Lease Status. The default IP for this is 127.0.0.1 (windows) or  
+first interface on Linux and default port is 6789. You can change both IP and port here. This page is only  
+available if DHCP Service is enabled.  
+
+[HTTP_INTERFACE]  
+HTTPServer=192.168.0.3:6789  
+  
+If no port is specified, it is 6789  
+
+In addition to HTTPServer, you can specify upto 8 http clients, which can access this http page. If no  
+client is specified, all clients can access this page.  
+
+[HTTP_INTERFACE]  
+HTTPServer=192.168.55.254  
+HTTPClient=192.168.0.11  
+HTTPClient=192.168.23.113  
+
+                                            
+
+----------------------- Page 20-----------------------
+
+                                                       Dual DHCP DNS Server  
+
+5   Running of Dual Server  
+5.1   Windows  
+
+In Windows, you can run Dual Server in two different modes a) As Windows Service b) as StandAlone  
+from Start Menu. For running it as Service you should go to windows Services Control Applet and start  
+the Service called  Dual DHCP DNS Sever. When the service is started, it will put the log in the log  
+directory. Running StandAlone will show all the activity in the Command Window only.  
+
+                                                                                                                                          
+
+If you are have just installed the Dual Server, run it in StandAlone mode from Start Menu to see if it  
+works fine.   For normal operation you should just start the Windows Service in Service Control Panel.  
+
+                                                                                                                                          
+
+----------------------- Page 21-----------------------
+
+                                                               Dual DHCP DNS Server  
+
+5.2       Linux  
+
+In Linux too you can run the dualserver in modes:-  
+
+      a)    Verbatim Mode (using -v argument)  
+      b)    Daemon (NOT using -v argument)  
+  
+This program uses 2 or 3 helper files, which should be passed as arguments.  
+  
+      a)    -i[inifile], where configuration settings can be specified, default is ./etc/dualserver.ini  
+      b)    -l[logfile] dumps log to this file in daemon mode, default is syslog  
+      c)    -s[statefile] saves current leases, default is /tmp/dualserver.state  
+  
+You can start/run as:-  
+  
+/opt/dualserver/dualserverd                                                                                #(daemon with default files)  
+/opt/dualserver/dualserverd –v                                                                             # (verbatim with default files)  
+/opt/dualserver/dualserverd -i inifile -l logfile                                                          # (as daemon)  
+/opt/dualserver/dualserverd -i inifile                                                                     #(as daemon)  
+/opt/dualserver/dualserverd  -v -i inifile                                                                 #(as verbatim)  
+  
+The logfile should include %Y for full year or %y for 2 digit year, %m for month, %d for day of month.  
+These will be replaced with actual values and this will create different file every day.  
+  
+/opt/dualserver/dualserverd -l /opt/dualserver/log/dualserver%Y%m%d.log -i/opt/dualserver/dualserverd.ini  
+  
+You can also include just %m and %Y if you want monthly log file like:-  
+  
+/opt/dualserver/dualserver -l <logDirecory>/dualserver%Y%m.log -i<someDirecory>/dualserver.ini  
+  
+Make sure the directory for logfiles should exit  before running the program. Once you have done the  
+daemonization under section Installation, you can start/stop the dualserver with commands:-  
+  
+service dualserver start  
+service dualserver stop  
+  
+Otherwise you can try:  
+/opt/dualserver/rc.dualserver start  
+/etc/rc.d/dualserver start  
+/opt/dualserver/rc.dualserver stop  
+ /etc/rc.d/dualserver stop  
+  
+
+----------------------- Page 22-----------------------
+
+                                                   Dual DHCP DNS Server  
+
+5.3   Starting Sequence for Primary/Secondary Mode  
+
+When Dual DHCP Server runs in Primary/Secondary mode, Primary Server has to be started first. If  
+Primary Server is not running, secondary will not be able to start as it needs to pull the full zones before  
+actually starting. Once Secondary Server has started, Primary server can stop or go down temporarily,  
+secondary will continue to run. It will allocate/renew leases and will also serve External and Local DNS  
+Queries.   
+
+When Primary server is down, the leases will be allotted/renewed secondary server  but DNS Zone in  
+secondary will not be updated with newly allotted hosts. The zone is only updated in Primary Server  
+(with newly allotted DHCP leases and expiring  leases of both servers). Secondary only replicates the  
+Primary Zone. All new leases issued even by secondary server will not be replicated to Primary Server  
+and Primary Server being down, its Zone will not be updated. Secondary will not be able to refresh its  
+zone. Hence newly allotted hosts will not be added to the zone of Secondary Server. Once the primary  
+server is restarted, everything will be automatically corrected as leases of new hosts are renewed.  
+
+                                         
+
+----------------------- Page 23-----------------------
+
+                                                     Dual DHCP DNS Server  
+
+6   Process of Allotting Addresses  
+
+  
+
+DHCP  Server  is  Dynamic  Host  Configuration  Protocol  server,  which  allots  IP  addresses  to  computers  
+automatically.  You  may  manually  setup  IP  addresses  on  computers  but  managing  them  is  always  
+troublesome process. On networks, where there are many computers, it is nightmare and error prone.  
+DHCP  Server  allots  address  to  computers  as  and  when  an  IP  address  is  requested.  DHCP  Server  
+maintains  a  pool  of  addresses  and  keeps  on  allocating  and  renewing  IP  addresses  from  this  pool  (or  
+statically pre-assigned addresses for some computers).  
+
+When an address is allotted to a computer, many more parameters of computer are also set like Domain  
+Name, DNS Server, router/gateway etc. These are called DHCP Options. DHCP Server can use different IP  
+address  pools  and options  depends  on  how  the  request  came  (which  interface,  or  relay  agent),  what  
+parameters are send with request.  
+
+As the newly booted computer don’t have IP address, it uses broadcast for discover a DHCP Server on  
+network,  send  the  request  as  broadcast  and  received  the  allotted  address  via  broadcast  till  booted  
+computer gets a IP address of its own.  
+
+The actual process is:-  
+
+A user turns on a computer with a DHCP client.   
+
+The  client  computer  sends  a  broadcast  request  (called  a  DISCOVER  or  DHCPDISCOVER),  looking  for  a  
+DHCP server to answer.   
+
+The server receives the DISCOVER packet. Based on availability and usage policies set on the server, the  
+server  determines  an  appropriate  address  (if  any)  to  give  to  the  client.  The  server  then  temporarily  
+reserves that address for the client and sends back to the client an OFFER (or DHCPOFFER) packet, with  
+that address information. The server also configures the client's DNS servers, WINS servers, NTP servers,  
+and sometimes other services as well.   
+
+The client sends a REQUEST (or DHCPREQUEST) packet, letting the server know that it intends to use the  
+address.   
+
+The server sends an ACK (or DHCPACK) packet, confirming that the client has a been given a lease on the  
+address for a server-specified period of time.  
+
+When a computer uses a static IP address, it means  that the computer is manually configured to use a  
+specific IP address. One problem with static assignment, which can result from user error or inattention  
+to detail, occurs when two computers are configured with the same IP address. This creates a conflict  
+that results in loss of service. Using DHCP to dynamically assign IP addresses minimizes these conflicts.  
+
+  
+
+----------------------- Page 24-----------------------
+
+                                                       Dual DHCP DNS Server  
+
+When DHCP-DISCOVER is received by Dual Server, it does the following:-  
+
+     a)    Look into static hosts, if there is a Static Host entry for that Mac-Address. If one is found, it  
+          temporarily allocated that IP to the client and sends the DHCP-OFFER.  
+     b)   Checks if [DNS_HOSTS] has an IP associated to Hostname of this host. If this IP falls in suitable  
+           DHCPRange, it is free, then it is selected.  
+     c)    If no static host is defined against the Mac-Address of client, it now looks into all the DHCP  
+           ranges under all RANGE_SETs one by one. The matching range is the one which :-  
+            
+               Has the IP of server’s interface from which the DISCOVER is received. If request came from a  
+                relay agent, then the range in which the IP of relay agent falls.  
+               If some ranges have filters specified, then only those ranges, which meet the filter condition,  
+                will only be used.  More information about these filters is available somewhere in this  
+                document.  
+
+           If the  range has a previously allotted address of same host, which is still free, then this IP will be  
+           re-selected, if not, then if new free address will be selected or an expired address of another  
+          client will be selected.  
+
+          Once it finds a usable address, it temporarily reserves that address and sends DHCP DISCOVER.  
+
+                                            
+
+----------------------- Page 25-----------------------
+
+                                             Dual DHCP DNS Server  
+
+7   Process of Resolving Addresses  
+7.1   General   
+
+The primary purpose of DNS Service is to translate the Host Name (normally fqdn meaning hostname  
+including the domain name) to its IP address(s).  DNS Service runs at Query/Answers. There are multiple  
+types of queries but most common is asking the IP address of host. DNS Service queries its tables and if  
+found sends the reply. These tables are called Resource Records or RRs.  In most  DNS Servers, these  
+tables are loaded (into memory) from text files called resource records. Some servers do store these  
+records in a backend database or LDAP.  
+
+Fully Qualified Domain name means hostname. zone. For example in www.example.com, www is actual  
+hostname while example.com is zone or domain. All records which have  last part as example.com are  
+part of zone example.com.  Zone example.com is forward zone and will be appended to all computer  
+names of example company. www.example.com is called  Fully Qualified Domain Name or fqdn.  For  
+resolving hostname to IP, this fqdn is sent to DNSServer, which returns its IP.  Now for resolving IP  
+address back to it’s computer name, there will be another zone, which is based on IP address only. An IP  
+address 192.168.55.1 will be considered part of reverse zone 55.168.192.in-addr.arpa. All the IPs whose  
+first three octates are 192.168.55, will be part of this zone 55.168.192.in-addr.arpa. 55.168.192.in- 
+addr.arpa is 256 IP zone with subnetmask of 255.255.255.0. We can also define large zone for example  
+168.192.in-addr.arpa with subnetmask 255.255.0.0. As you can see all IP addresses from 192.168.0.1 to  
+192.168.254.254 will be part of this zone.  
+
+A DNS Server resolves the address using Resource Records from:-  
+
+    a)   Its list of authorized entries or non authorized entries.  
+    b)   It can forward the queries to its forwarding servers and get the response back.  
+    c)   It can cache the previous queries resolved and use this cache to resolve queries.  
+
+Forwarding Server too is a DNS Server but this too may not have record for host being queried. Then  
+forwarding server too can forward the query to it’s own forwarding servers and so on till the query is  
+resolved or it is no more resolvable.  
+
+7.2    Dual Server Resource Records  
+
+Dual Server has following type of Records  
+
+7.2.1   Records loaded from DualServer.ini files.  
+These records all loaded from DualServer.ini file from [DNS_HOSTS], [ALIASES] and [WILD_HOSTS]  
+sections. One forward entry for resolving hostname to IP and also equivalent  reverse entry for resolving  
+IP address to its hostname are created. The DualServer makes automatic reverse entry. In other words  
+two records are created from each entry in DNS_HOSTS section. Only one record is created from entries  
+under ALIASES section and one from MAIL_SERVERS section. WILD_HOST are individually loaded but will  
+
+----------------------- Page 26-----------------------
+
+                                                  Dual DHCP DNS Server  
+
+not be replicated in a zone transfer.  For an authorized server, although all entries are read and added to  
+DualServer but entries not falling in any zone are not replicated.  
+
+7.2.2   Records added by DHCP Service  
+If DHCP Service is used, it will add its own records. For example, if a new IP has been allotted by DHCP  
+Server, this record will be added to DNS Records. All hosts allotted by DHCP Service, will be added and  
+will be removed automatically, when the lease expires. In case of Replicated operation, records will not  
+be added to Secondary Server directly but to Primary Server and will be replicated to Secondary Server.  
+
+7.2.3   Records replicated from Primary Server   
+In case of Primary/Secondary operation, Secondary Server will not load authorized zone’s  records from  
+its DualServer.ini file but will rather replicate these from Primary Server by regular zone transfer.  Wild  
+host records and records out of zone are still read from local DualServer.ini file.  
+
+7.2.4   Cached Records  
+When a query is external (means it is out of zone of authorized DNS Server), it forwards the query to its  
+parent external DNS Server and gets the answer. It finally send the answer to querying host but also  
+store this record in its memory for a period of time so that it don’t have to forward this query. These are  
+called Cached Records.  
+
+7.3     Dual Server Queries Supported  
+
+Dual Server supports following Queries:-  
+
+    Query Type                        Protocol     Source of RRs  
+1   A (Host to IP)                    udp          Loaded from DualServer.ini, Allotted by DHCP, From  
+2    PTR (IP to Host)                 udp          Forwarded queries and Cache or Replicated  
+3    MX (Domain’s Mail                udp          MAIL_SERVERS section of DualServer.ini or replicated from  
+    Servers)                                       Primary  
+4    NS (Name Server)                 udp          Information from DOMAIN_NAME, authorized operation  
+5   SOA (Start of Authority)          udp/tcp      only.  
+6   AXFR (Complete forward            tcp          Information from DOMAIN_NAME and all other matching  
+    and reverse zone)                              records to DOMAIN_NAME, authorized operation only.  
+7   ANY (All records for a            udp          Matching from all SECTIONS  
+     host)  
+  
+
+7.4     Forwarding  
+
+Dual Server does forward records to forwarding servers stated under CONDITIONAL_FORWARDERS or  
+FORWARDING_SERVERS. What queries are forwarded depends on Authorized and Non-Authorized  
+operation.   
+
+----------------------- Page 27-----------------------
+
+                                                 Dual DHCP DNS Server  
+
+7.4.1   Non-Authorized Forwarding   
+When Server is not an authority for the zone, all the queries are attempted from Entries specified in  
+DualServer.ini file or included file or DHCP Allotted entries. If a query could not be resolved, it is  
+attempted from cache (A and PTR records only) and if no matching record is found in cache, it is simply  
+forwarded to FORWARDING_SERVERS or CONDITIONAL_FORWARDERS. All queries including NS, SOA are  
+forwarded. Dual Server does  not forward tcp/ip queries.  If resolved, these are cached (A and PTR only)  
+before reply is sent to querying host.   
+
+7.4.2   Authorized Forwarding  
+If Server is an Authority for a zone, the zone specific queries are never forwarded and if host is not found  
+in its database, NXDOMAIN (host not found) response will be sent. Suppose the DualServer is an  
+authority for zone achal.com=55.168.192.in-addr.arpa, then all queries whose last part matches with  
+any of these Zones will not be forwarded. In the given example in previous line, www.achal.com will not  
+be forwarded also reverse lookup query 30. 55.168.192.in-addr.arpa will not be forwarded. Also for  
+Authorized Server for a zone, SOA, NS, AXFR queries will be responded locally.  
+
+7.4.3   Conditional Forwarding  
+This is also called DNS Proxy. This can be configured under section CONDITIONAL_FORWARDERS. Before  
+forwarding to default FORWARDING_SERVERS, DualServer will check if the queried hostname has  
+matching zone (forward or reverse), queries will be forwarded to DNS Servers specified on right of =  
+sign.  
+
+7.4.4   Non-Authorized entries and queries.  
+Dual DHCP DNS Server also allows you to make entries for External Queries (Queries which do not  
+belong to its authorized zones). These are also resolved locally even when the server is not operating in  
+replicated mode. These entries are not read by server when run in replicated mode and hence will not  
+be resolved.  The simple reason for this is than these entries will not be replicated to secondary server.  
+
+----------------------- Page 28-----------------------
+
+                                                 Dual DHCP DNS Server  
+
+8   Dual Server in Multi Zone Domain.  
+
+Dual Server is single zone server that  means it only supports one forward zone and one reverse zone  
+only. This may be enough for all most organizations, who normally have just one zone.  Sometimes due  
+to management ease, a Domain is divided into multiple zones. Say example.com domain has  
+marketing.example.com and developer.example.com zones. Each of these zones can have computers of  
+their own like www.marketing.example.com and www.developer.example.com.  Each zone will have its  
+own set of DNS servers and main domain (example.com) has its own DNS Servers. Now Domain’s DNS  
+Server should forward queries *.marketing.example.com to DNS Server of zone marketing.example.com,  
+*. developer.example.com to DNS Server of zone developer.example.com but all other external queries  
+still need to be forwarded to default FORWARDING_SERVER.  
+
+If the organization has multiple zones in their domain, Dual Server can still be used both as main Domain  
+Server and Individual zone Server.  If you have a domain with multiple child zones, each zone having its  
+own DNS/DHCP or DNS server, You can use a multizone DNS Server like bind as Main Domain Name  
+Server, which would transfer different zones from child servers. Dual Server can be very well used as  
+Child Zone Servers with DHCP/DNS for zone and Domain Name Server would have all the zones  
+transferred from Child Servers.    
+
+Dual Server, despite being single zone server, still provides a way to work as main Domain Name Server  
+for whole domain. It works differently but with same results, without even the need to transfer child  
+zones. You can configure 1 or more Dual Servers as Master DNS Server (Domain DNS Server) for whole  
+domain and these can forward queries to specific zone servers based on zone match. Queries not  
+matching to zones specified in [CONDITIONAL_FORWADERS] section will be forwarded to default  
+forwarding DNS Servers. One query will be forwarded only once to Child server and then cache is used  
+to resolve unless it has expired. Please see the [CONDITIONAL_FORWADERS] section of ini file.  Entries in  
+[CONDITIONAL_FORWADERS] behave differently than forwarding server entries in  
+[FORWARDING_SERVERS] section. For correct behavior you should specify child zone servers in  
+[CONDITIONAL_FORWADERS] like:-  
+
+  [CONDITIONAL_FORWADERS]  
+childzone1.workgroup.com=xxx.xxx.xxx.xxx, xxx.xxx.xxx.xxx  
+1.168.192.in-addr-arpa=xxx.xxx.xxx.xxx, xxx.xxx.xxx.xxx  
+childzone2.workgroup.com=xxx.xxx.xxx.xxx   
+2.168.192.in-addr-arpa=xxx.xxx.xxx.xxx    
+  
+The child zone can have just one DNS Server or can have primary and secondary with zone replication  
+between themself. Domain Server would contact primary or secondary child zone server, whichever is  
+available. You can specify one server also, if child zone has only 1 server.  Main Domain Name servers  
+should be specified as forwarding servers in child zone dns servers, so that each zone can also resolve  
+entries in sibling child zones through main Domain Name Server. ISP or Public DNS Servers should only  
+be specified in main Domain Name Servers.  If you need full backup, minimum 2 DualServers should be  
+
+----------------------- Page 29-----------------------
+
+                                                        Dual DHCP DNS Server  
+
+used as main Domain Name Server for main domain with identical configuration and each child zone  
+should have 2 DualServers, with zone replication between them only.  
+
+                                             
+
+----------------------- Page 30-----------------------
+
+                                             Dual DHCP DNS Server  
+
+9   Replicated Operation.  
+
+The  Dual Server have been designed and developed to do  replicated operation. Dual Server has both  
+DHCP and DNS Capabilities. Replication means multiple things to Dual Server:-  
+
+    a.   Co-Ordination between DHCP and DNS components of Single Server Instance.  
+     b.  DHCP Co-ordination between two instances of Dual Server.  
+    c.   DNS Co-ordination between two instances of Dual Server.  
+
+9.1   Co-Ordination between DHCP and DNS components  
+
+DHCP server allots the IP address to network hosts and DNS Server resolves them.  How DNS server  
+figures out what IP address has been allotted to what host by DHCP server. If you have different DHCP  
+and DNS Servers, one way is to manually do it, which is error prone and tedious task.  Another approach  
+is to configure Direct Dynamic Update which too needs complex configuration. Dual Server does this  
+automatically as it is in-build feature of Dual DHCP DNS Server. All the DHCP allotted hostnames are  
+automatically added to DNS Server’s records.  
+
+9.2    DHCP Co-Ordination between two instances of Dual Server  
+
+If you want to have more than one DHCP Servers (from any other vendor) in your network for  
+redundancy, it is not easy as different DHCP Server may assign different IP address to same host. Also  
+already allotted addresses by one server can be re allotted by different Server.   Furthermore, if one  
+instance goes down, other would force DHCP DISCOVER and DHCP OFFER etc. causing break of Service.  
+This too would change the allotted address of host.  
+
+Dual Server has been designed for well-coordinated replicated DHCP operation too. Following features  
+make it unique among other DHCP Servers available.  
+
+      a.  All the allotted addresses are immediately  replicated to other instance by sending special DHCP  
+          INFORM messages keeping the internal database of both servers identical. This prevents  
+          issuing of same address to multiple hosts or issuing different address to same host.  
+      b.  When once instance goes down, other can simply renew the same lease, moment lease  
+          request goes to broadcast mode. This process does not need a DHCP DISCOVER and offer. This  
+          feature prevents the break of Service for clients.  
+      c.  All the DHCP ranges and option between different instances can be make consistent  by simply  
+          copying single DualServer.ini file.  
+
+9.3    DNS Co-ordination between two instances of Dual Server.  
+
+DNS Co-ordination is done in Dual Server using conventional zone transfer scheme. The zone from  
+Primary server is replicated periodically using axfr queries.  This keeps the DNS Database consistent  
+between both servers.  
+
+----------------------- Page 31-----------------------
+
+                                                    Dual DHCP DNS Server  
+
+But how about DHCP allotted hosts. These too are replicated from Primary Server, which automatically  
+adds the DHCP allotted hostnames and IPs to Primary Server’s zones and increments the serial on  
+primary server. Now the question comes how about addresses allotted by secondary DHCP Server  
+instance. Dual Server do not modify zone in secondary server directly. Even if address is allotted by  
+secondary server, the host is added in the zone of Primary Server only and replicated in secondary  
+server using axfr.  
+
+9.4     Replication Schemes  
+
+As Dual Server provides both DHCP service and DNS service, there are multiple ways replication  
+operation can be setup.  
+
+9.4.1   Dual Server with only DNS Service as Primary and Secondary Server.  
+  
+This is the simple most arrangement. When primary server is started it reads ALIASes, MX and STATIC- 
+HOST records from it's ini file. When Secondary Server starts, it does not read these entries from its' ini  
+file, but pulls the full zone from Primary Server. Secondary Server keeps  checking the Serial from  
+Primary Server, using UDP SOA query, if Serial advances, full zone is transferred from Primary. If any  
+changes are made in ini file of  Primary Server, it needs to be restarted and thereafter Secondary Server  
+would pull automatically all RRs from Primary, after refresh time. Dual Servers do not support NOTIFY.  
+
+9.4.2   Dual Server with DNS and DHCP as Primary Server and Dual Server with only  
+          DNS as Secondary Server  
+  
+This is the conventional arrangement. When Primary Server starts, it reads Hosts, MX, CNAMEs from ini  
+file. When Secondary server starts/restarts, it pulls Static-Host, MX, Aliases and DHCP added RRs from  
+Primary Server.  Secondary Server keeps updating its database through conventional refresh after  
+refresh time. When any  DHCP lease is added or released at Primary Server, its serial number advances  
+and secondary DNS Server gets this entry/deletes expired entry ony when refresh takes  place.  
+Secondary server keeps checking the serial of primary and if it advances, full zone is refreshed at  
+secondary server. Similarly changing the Static Entries at Primary Server (followed by restart) also  
+advances its serial and secondary is refreshes automatically.  
+
+9.4.3   Dual Server with DNS and DHCP as Primary Server and third party DNS server  
+          as Secondary Server.  
+  
+This arrangement too works similar to 2. Dual Server supports only full zone transfer.  Dual Server do  not  
+send NOTIFY message and do not send increment zone transfer. The secondary server needs to pull the  
+full zone after refresh time.  When using third party server, please do not specify it as Secondary Server  
+but add as AXFRClient. The advantage of using Dual Server as Primary is that all DHCP allotted  RRs too  
+are also transferred with zone transfer to third party secondary server. If third party secondary server  
+supports multiple zones you can use this arrangement and pull zones form multiple Dual Server  
+instances operating in different zones.  
+
+----------------------- Page 32-----------------------
+
+                                                      Dual DHCP DNS Server  
+
+9.4.4   Dual Server as secondary server and third party server as primary server.  
+  
+This arrangement too works similar to 2. However third party primary DNS Server need to update its  
+database through DHCP Dynamic update or some other mechanism. Secondary Dual Server would get  
+updated full zone after refresh time.  
+
+9.4.5   Dual Server with only DHCP Service as Primary and Secondary Server.  
+  
+This arrangement  provides backup DHCP Server operation. As both the DHCP Servers are in operation,  
+new lease may be allotted by any server on a Client Request. However special DHCP INFORM message  
+keep the database of both servers in synch. When any DHCP lease is added or renewed or released by  
+Primary Server or Secondary Server, the DHCP Entry is automatically duplicated in other server. Under  
+this arrangement, if any DHCP server goes down, other is available and will renew the lease  
+straightaway (without a DICOVER or OFFER).  
+
+9.4.6   Dual Server with DNS and DHCP as Primary Server and Dual Server with DNS  
+          and DHCP as Secondary Server  
+  
+This is the recommended arrangement. When Primary Server starts, it reads MX,  Hosts and CNAMEs  
+from ini file. Secondary server  pulls Static-Host, MX, Aliases and DHCP added RRs from Primary Server  
+when it starts and also periodically by zone transfer. When any DHCP lease is added or released at  
+Primary Server or Secondary Server, the DHCP Entry is duplicated in other server, through unicast  DHCP  
+inform messages. Also the corresponding RR is added to the zone of Primary Server, which is replicated  
+in Secondary Server. Dual Server do not modify zone in secondary server directly. Even if address is  
+allotted by secondary server, the host is added in the zone of Primary Server only and replicated in  
+secondary server using axfr.  
+
+This arrangement provides fully synchronized, load shared, fail safe duplicate d DNS and DHCP Server,  
+with replication and hence highly recommended over any other arrangement.  
+
+9.4.7   Dual Server with only DNS (or third party DNS) as Primary and Dual Server  
+          with DHCP as Secondary.  
+  
+This arrangement is not recommended, as Primary will not be updated of changes to Secondary  due to  
+DHCP changes.  
+  
+9.5   Timings for Replicated Operation  
+
+When using the replicated operation, special attention needs to be given about lease time, so that both  
+servers quickly become in synch. It is recommended to keep the lease time to lowest possible.  
+Sometimes a lease time of 600 seconds and refresh time of 1200 seconds may be the best, so that both  
+servers are quickly in synch.  
+
+----------------------- Page 33-----------------------
+
+                                                   Dual DHCP DNS Server  
+
+10 DHCP OPTIONS  
+
+  
+
+10.1 Specifying options and values in Dual DHCP DNS Server  
+
+DHCP Options are sent to client along with DHCP Offer and DHCP Ack. These are various other setting of  
+client like DNS Server, Router/Gateway, various other default servers like WINS, HTTP Server, Linux  
+Windows Manager etc. There are about 150+ various standard options are available, some of these are  
+Vendor Specific or Server Specific. Each option has an option tag (1 to 254) and the value of option  
+which can be upto 254 bytes.  
+
+Dual DHCP DNS Server stores DHCP Options at three different levels. These can be stored under  
+[GLOBAL_OPTIONS], [RANGE_SET] or Static Client sections. Option Tag and Option Value are separated  
+by = sign. Global Options are added to each DHCP Offer and DHCP Acknowledgement going out of  
+server, Range specific options are added to each DHCP OFFER/ACK when offered IP falls in DHCP_RANGE  
+and Client specific option sent with DHCP Offer/Ack specific to Static Client.   
+
+Options are only supplemented but never replaced. This means if an option has already been specified  
+under Static Client level, value is taken only from Client Specific option; it will not be replaced by value  
+of such option from either RANGE_SET or GLOBAL_OPTIONS. Similarly if an option has value specified  
+under RANGE_SET, value is not replaced in GLOBAL_OPTIONS. However if option is not specified under  
+Client Specific, it will be augmented from RANGE_SET and if RANGE_SET has no such option and Global  
+Options has it, it will be added from Global Options. Global Options are stored as attributes in  
+Configuration entry, Range Specific Options under DHCP Range Entries and Client Specific options are  
+attributes to Static Client Entries.  
+
+DHCP Options are specified in all above sections as OptionTag=value syntax. Option tags can be number  
+or standard mnemonic text for that Option tag. Mnemonic text is used as remembering numbers is  
+difficult. Dual DHCP DNS Server now uses option names (less spaces/dashes) stipulated by IANA in  
+document at http://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xml.  
+The server translates these mnemonic text (will be called option names) back to option tags when  
+sending options to hosts. List of all option name are listed in next section.   
+
+The option values are multiple types. These can be Strings, IP addresses, Integers, Byte Array or Boolean.  
+The option value types are specified in table in next section. The format of value depends on it’s type.  
+String option values are just a string. Value strings should be quoted with double quotes. IPs can be  
+specified using dot convention like xxx.xxx.xxx.xxx and multiple IPs can be specified like xxx.xxx.xxx.xxx,  
+xxx.xxx.xxx.xxx where xxx is octets 0-255. Integer values can be stated as plain numbers. Integer values  
+can be BYTE, SHORT (2 bytes) and LONG (4 bytes). Boolean values can be specified using keywords  
+YES/NO, ON/OFF or 0/1 digit. Byte array can only be specified as Byte Array or Hex Array. Dual  DHCP  
+DNS Server always converts the all values to Byte Array for sending these to Hosts. Hence all the option  
+values (irrespective of its type) can always be specified as Byte Array or Hex String. Options having sub- 
+options can only be specified as Byte Array or Hex String.   
+
+Byte Array is just comma separated octet values and hex String is colon (:) separated hex bytes.  
+
+----------------------- Page 34-----------------------
+
+                                                          Dual DHCP DNS Server  
+
+For example Sub Net Mask can be specified as:  
+
+1=255.255.255.0                                                                                       
+or  
+SubNetMask=255.255.255.0  
+  
+Similarly DNS Servers can be specified as:-  
+  
+6=192.168.0.1, 192.168.0.2  
+or  
+DomainServer=192.168.0.1, 192.168.0.2  
+  
+Now the values of these options can be specified in multiple ways. String values should be a quoted  
+string or colon separated hex values or comma separated byte array like:-  
+  
+DomainName=”MyDomain.com”  
+or  
+15=”MyDomain.com”  
+or  
+DomainName=4d:79:44:6f:6d:61:69:6e:2e:63:6f:6d  
+or  
+15=4d:79:44:6f:6d:61:69:6e:2e:63:6f:6d  
+or  
+DomainName=77,121,68,111,109,97,105,110,44,99,111,109  
+or  
+15=77,121,68,111,109,97,105,110,44,99,111,109  
+  
+All of the above Option Entries work same way for string values.  For IP address values, you can use both  
+dot separated values or hex string or byte array like:-  
+  
+Router = 192.168.0.1  
+or  
+3 = 192.168.0.1  
+or   
+Router = 192,168,0,1  
+or  
+3 = 192,168,0,1  
+or   
+Router = c0:a8:00:01  
+or  
+3 = c0:a8:00:01  
+  
+If you have multiple values for an Option you can specify like:-  
+
+----------------------- Page 35-----------------------
+
+                                                               Dual DHCP DNS Server  
+
+  
+DomainServer=192.168.0.2, 192.168.0.3  
+or as 8 consecutive bytes for 2 addresses  
+DomainServer=192,168,0,2,192,168,0,3   
+or as 8 consecutive hexbytes for 2 addresses  
+DomainServer=c0:a8:00:01:c0:a8:00:02  
+  
+Numerical values can be simply stated as:-  
+LeaseTime=360  
+or  
+51=360  
+  
+Boolean Options should be specified as:-  
+AutoConfig=yes or AutoConfig=no or 116=yes or 116=1 or AutoConfig=off  
+  
+DHCP Range can only be specified as:-  
+DHCPRange=10.0.0.5-10.0.0.10  
+  
+
+10.2 List of DHCP Options Names (in Dual DHCP DNS Server)  
+
+These are option names used in Dual DHCP DNS Server. These are based on IANA names less spaces and  
+dashes. Please refer to http://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp- 
+parameters.xml for more info. You can also use options not listed here using tag names directly.  Please  
+note that some option values are vendor specific and should be cross verified from vendor’s documents.  
+
+Tag     Option Name in                         IANA Name                                                    Option      Meaning  
+        Dual DHCP DNS Server                                                                                Type  
+1       SubnetMask                             Subnet Mask                                                  IP          Subnet Mask Value.   
+2       TimeOffset                             Time Offset                                                  Long        Time Offset in Seconds from UTC  
+                                                                                                                        (note: deprecated by 100 and  
+                                                                                                                        101)  
+3       Router                                 Router                                                       IPs         N/4 Router addresses  
+4       TimeServer                             Time Server                                                  IPs         N/4 Timeserver addresses  
+5       NameServer                             Name Server                                                  IPs         N/4 IEN-116 Server addresses  
+6       DomainServer                           Domain Server                                                IPs         N/4 DNS Server addresses  
+7       LogServer                              Log Server                                                   IPs         N/4 Logging Server addresses  
+8       QuotesServer                           Quotes Server                                                IPs         N/4 Quotes Server addresses  
+9       LPRServer                              LPR Server                                                   IPs         N/4 Printer Server addresses  
+10      ImpressServer                          Impress Server                                               IPs         N/4 Impress Server addresses  
+11      RLPServer                              RLP Server                                                   IPs         N/4 RLP Server addresses  
+12      Hostname                               Hostname                                                     String      Hostname string  
+13      BootFileSize                           Boot File Size                                               Short       Size of boot file in 512 byte  
+                                                                                                                        chunks  
+14      MeritDumpFile                          Merit Dump File                                              String      Client to dump and name the file  
+                                                                                                                        to dump it to  
+15      DomainName                             Domain Name                                                  String      The DNS domain name of the  
+                                                                                                                        client  
+16      SwapServer                             Swap Server                                                  IP          Swap Server address  
+17      RootPath                               Root Path                                                    String      Path name for root disk  
+18      ExtensionFile                          Extension File                                               String      Path name for more BOOTP info  
+19      ForwardOn/Off                          Forward On/Off                                               Bool        Enable/Disable IP Forwarding  
+
+----------------------- Page 36-----------------------
+
+                                                                 Dual DHCP DNS Server  
+
+20      SrcRteOn/Off                            SrcRte On/Off                                                  Bool         Enable/Disable Source Routing  
+21      PolicyFilter                            Policy Filter                                                  IPs          Routing Policy Filters  
+22      MaxDGAssembly                           Max DG Assembly                                                Short        Max Datagram Reassembly Size  
+23      DefaultIPTTL                            Default IP TTL                                                 Byte         Default IP Time to Live  
+24      MTUTimeout                              MTU Timeout                                                    Long         Path MTU Aging Timeout  
+25      MTUPlateau                              MTU Plateau                                                    Shorts       Path MTU Plateau Table  
+26      MTUInterface                            MTU Interface                                                  Short        Interface MTU Size  
+27      MTUSubnet                               MTU Subnet                                                     Bool         All Subnets are Local  
+28      BroadcastAddress                        Broadcast Address                                              IPs          Broadcast Address  
+29      MaskDiscovery                           Mask Discovery                                                 Bool         Perform Mask Discovery  
+30      MaskSupplier                            Mask Supplier                                                  Bool         Provide Mask to Others  
+31      RouterDiscovery                         Router Discovery                                               Bool         Perform Router Discovery  
+32      RouterRequest                           Router Request                                                 IP           Router Solicitation Address  
+33      StaticRoute                             Static Route                                                   IPs          Static Routing Table  
+34      Trailers                                Trailers                                                       Bool        Trailer Encapsulation  
+35      ARPTimeout                              ARP Timeout                                                    Long         ARP Cache Timeout  
+36      Ethernet                                Ethernet                                                       Bool         Ethernet Encapsulation  
+37      DefaultTCPTTL                           Default TCP TTL                                                Byte         Default TCP Time to Live  
+38      KeepaliveTime                           Keepalive Time                                                 Long        TCP Keepalive Interval  
+39      KeepaliveData                           Keepalive Data                                                 Bool        TCP Keepalive Garbage  
+40      NISDomain                               NIS Domain                                                     String       NIS Domain Name  
+41      NISServers                              NIS Servers                                                    IPs          NIS Server Addresses  
+42      NTPServers                              NTP Servers                                                    IPs          NTP Server Addresses  
+44      NETBIOSNameSrv                          NETBIOS Name Srv                                               IPs          NETBIOS Name Servers, List of  
+                                                                                                                            RFC 1001/1002 NBNS name  
+                                                                                                                            servers in order of preference.  
+45      NETBIOSDistSrv                          NETBIOS Dist Srv                                               IPs          NETBIOS Datagram Distribution.  
+                                                                                                                            List of RFC 1001/1002 NBDD  
+                                                                                                                            servers in order of preference.  
+46      NETBIOSNodeType                         NETBIOS Node Type                                              Byte         NETBIOS Node Type  
+                                                                                                                            1=B-node (broadcast node)  
+                                                                                                                            2=P-node (point-to-point node)  
+                                                                                                                            4=M-node (mixed node)  
+                                                                                                                            8=H-node (hybrid node)  
+47      NETBIOSScope                            NETBIOS Scope                                                  Bool         NETBIOS Scope  
+                                                                                                                            1 = Enable NetBIOS over TCP/IP  
+                                                                                                                            2 = Disable NetBIOS over TCP/IP  
+48      XWindowFont                             X Window Font                                                  IPs          X Window Font Server  
+49      XWindowManager                          X Window Manager                                               IPs          X Window Display Manager  
+51      AddressTime                             Address Time                                                   Long         IP Address Lease Time  
+58      RenewalTime                             Renewal Time                                                   Long         DHCP Renewal (T1) Time (should  
+                                                                                                                            be less than Lease Time above. If  
+                                                                                                                            not specified, default is half the  
+                                                                                                                            Lease Time  
+59      RebindingTime                           Rebinding Time                                                 Long         DHCP Rebinding (T2) Time,  
+                                                                                                                            should be more than Lease Time  
+                                                                                                                            above. If not specified, it is equal  
+                                                                                                                            to Lease Time above.  
+62      NetWare/IPDomain                        NetWare/IP Domain                                              String       NetWare/IP Domain Name  
+63      NetWare/IPOption                        NetWare/IP Option                                              Sub          NetWare/IP sub Options  
+                                                                                                               Options      05 Perform NSQ Broadcast  
+                                                                                                                            06 Preferred DSS  
+                                                                                                                            07 Nearest NWIP Server(s)  
+                                                                                                                            08 Number of Auto Retries  
+                                                                                                                            09 Auto Retry Interval  
+                                                                                                                            10 Support NWIP 1.1  
+                                                                                                                            11 Primary DDS  
+                                                                                                                            12 IPX Network Number  
+                                                                                                                            13 IPX Stale Time  
+                                                                                                                            14 Migration Agents  
+64      NISDomain                               NIS-Domain-Name                                                String       NIS+ v3 Client Domain Name  
+65      NISServers                              NIS-Server-Addr                                                IPs          NIS+ v3 Server Addresses  
+66      TFTPServerName                          Server-Name                                                    String      TFTP Server Name  
+67      BootFileOption                          Bootfile-Name                                                  String       Boot File Name  
+
+----------------------- Page 37-----------------------
+
+                                                                    Dual DHCP DNS Server  
+
+ 68      HomeAgentAddrs                            Home-Agent-Addrs                                                 IP           Home Agent Addresses  
+ 69     SMTPServer                                 SMTP-Server                                                      IP           Simple Mail Server Addresses  
+ 70      POP3Server                                POP3-Server                                                      IP           Post Office Server Addresses  
+ 71      NNTPServer                                NNTP-Server                                                      IP           Network News Server Addresses  
+ 72     WWWServer                                  WWW-Server                                                       IP           WWW Server Addresses  
+ 73      FingerServer                              Finger-Server                                                    IP           Finger Server Addresses  
+ 74      IRCServer                                 IRC-Server                                                       IP           Chat Server Addresses  
+ 75     StreetTalkServer                           StreetTalk-Server                                                IP           StreetTalk Server Addresses  
+ 76     STDAServer                                 STDA-Server                                                      IP           ST Directory Assist. Addresses  
+ 78      DirectoryAgent                            Directory Agent                                                  String       directory agent information  
+ 79     ServiceScope                               Service Scope                                                    String       service location agent scope  
+ 83     iSNS                                       iSNS                                                             String       Internet Storage Name Service  
+ 85      NDSServers                                NDS Servers                                                      IPs          Novell Directory Services  
+ 86      NDSTreeName                               NDS Tree Name                                                    String       Novell Directory Services  
+ 87      NDSContext                                NDS Context                                                      String       Novell Directory Services  
+ 95      LDAP                                      LDAP                                                             String       Lightweight Directory Access  
+                                                                                                                                 Protocol  
+ 100     PCode                                     PCode                                                            String       IEEE 1003.1 TZ String  
+ 101    TCode                                     TCode                                                             String       Reference to the TZ Database  
+ 112     NetinfoAddress                            Netinfo Address                                                  IPs          NetInfo Parent Server Address  
+ 113     NetinfoTag                                Netinfo Tag                                                      String       NetInfo Parent Server Tag  
+ 114     URL                                       URL                                                              String       URL  
+ 116    AutoConfig                                 Auto-Config                                                      Bool         DHCP Auto-Configuration  
+ 117     NameServiceSearch                         Name Service Search                                              Sub          Name Service Search  
+                                                                                                                    Options  
+ 118    SubnetSelectionOption                      Subnet Selection Option                                          IPs          Subnet Selection Option  
+ 119     DomainSearch                              Domain Search                                                    String       DNS domain search list  
+ 120    SIPServersDHCPOption                       SIP Servers DHCP Option                                          String       SIP Servers DHCP Option  
+ 121    ClasslessStaticRouteOption                 Classless Static Route Option                                    String       Classless Static Route Option  
+ 122    CCC                                        CCC                                                              String       CableLabs Client Configuration  
+ 128    TFTPPhoneServer                           TFTP Server IP address (for IP Phone software load)               IPs          This is not PXE Boot TFTP Server,  
+                                                                                                                                 please use NextServer for PXE  
+                                                                                                                                 Boot Server.  
+ 129    CallServerIPaddress                        Call Server IP address                                           IPs            
+ 130     Discriminationstring                      Discrimination string (to identify vendor)                       String         
+ 131     RemotestatisticsserverIPAddress           Remote statistics server IP address                              IPs            
+ 135     HTTPProxyPhone                            HTTP Proxy for phone-specific applications                       IPs            
+ 141    SIPUAServiceDomains                        SIP UA Service Domains                                           String       SIP UA Service Domains  
+ 150    TFTPserverAddress                         TFTP server address                                               IPs          This is not PXE Boot TFTP Server,  
+                                                                                                                                 please use NextServer for PXE  
+                                                                                                                                 Boot Server.  
+ 176     IPTelephone                               IP Telephone (Tentatively Assigned - 2005-06-23)                 String         
+ 209    ConfigurationFile                          Configuration File                                               String       Configuration file  
+ 210     PathPrefix                                Path Prefix                                                      String       Path Prefix Option  
+ 211     RebootTime                                Reboot Time                                                      Long         Reboot Time  
+ 255     End                                       End                                                                           None  
+
+  
+
+10.3 Dual DHCP DNS Server specific DHCP Header Field Options  
+
+There are some Dual DHCP DNS Server special options, although configured as Options which do not go  
+as vendor options but are used to fill the DHCP Header fields only.  
+  
+
+          BootFileName                             Boot File Field in DHCP Header                                         128 Bytes Max  
+          NextServer                               PXE TFTP Server Field in DHCP Header                                   IP Address  
+          TargetRelayAgent                         This option forces the DHCPOFFER to goto specified relay               IP Address  
+                                                   agent. Can be used to override the default relay agent  
+                                                   sent in DHCPDISCOVER  
+
+  
+
+----------------------- Page 38-----------------------
+
+                                                   Dual DHCP DNS Server  
+
+11 Configuration Tips  
+
+  
+There may special/tricky  requirements for Configuration. Some of the tips are:  
+
+Requirement                                                      Tip  
+DHCP Should only allot single address to all hosts               Specify only one RANGE_SET with range like:  
+(one host at a time)                                             DHCP  Range=192.168.55.1-192.168.55.1  
+I want to disable some Mac Addresses from                        There are two ways to do this. If there are discreet  
+Getting Address from DHCP Server                                 Mac Addresses, add these as Static Hosts without  
+                                                                 an IP address. If there is a range of Mac Addresses,  
+                                                                 Create a new [RANGE_SET] and specify the Mac  
+                                                                 Range, without specifying any actual DHCPRange.   
+I am using Relay Agent and want to select DHCP                   This feature is automatic, no special filter is  
+Range based on Subnet of  Relay Agent IP                         required. Open DHCP Server will select Matching  
+                                                                 Range to (in order):  
+                                                                 a)   Subnet IP (option 118)  
+                                                                 b)   Relay Agent IP  
+                                                                 c)   Incoming Interface’s IP (if no relay agent or  
+                                                                      subnet is specified in DHCP Request).   
+                                                                 You can override this automatic range selection  
+                                                                 using SubnetSelectionFilter (see Range filters)  
+I want to disable some subnets getting address                   Create a [RANGE_SET] specifying all such relay  
+from this server                                                 agent IP or Interface IP as SubnetSelectionFilter  
+                                                                 and don’t specify any actual DHCPRange.  
+I want to specify different IP range for all my                  User Class (DHCP Option 77) need to be used for  
+departments or customers or makes                                this. Please set User Class for the computers based  
+                                                                 for a Department and use FilterUserClass in  
+                                                                 RANGE_SET to be used for a department.  
+I want to set up PXE Boot and want to specify TFTP               Specify the option NextServer=x.x.x.x under  
+Server IP                                                        suitable DHCP Section. Make sure that tftp server  
+                                                                 (Next Server) is available and also file system  
+                                                                 (operating system) may be needed.  
+I want to specify boot file                                      Boot file can go in Header Field as well as under  
+                                                                 vendor option. Different DHCP Client behaves  
+                                                                 differently. There are two option names for this. If  
+                                                                 a option named BootFileName is specified, boot  
+                                                                 file name will go to header, but if size of filename  
+                                                                 is longer than 128, it will automatically switched  
+                                                                 and will be sent as Vendor Option. On the other  
+                                                                 hand if BootFileOption option is specified, it will be  
+                                                                 only sent as vendor option (nothing in header). If  
+                                                                 both are specified both Header and Vendor Option  
+                                                                 will be sent.  
+I want to specify sub-options for an option                      Just create a string of bytes you want to send and  
+                                                                 put these as either byte array or hex array in  
+                                                                 configuration.  
+
+----------------------- Page 39-----------------------
+
+                                                     Dual DHCP DNS Server  
+
+My DHCP hosts need hostname from DHCP Server                        Use Static Entries for DHCP Hosts and state the  
+                                                                    hostname for each entry there.  
+I have a corporate DNS Server(s) and I want to use                  There are two ways to do this:  
+Dual Server for one or more zones.                                       a)   If corporate DNS server supports  
+                                                                              conditional forwarding, let it send filtered  
+                                                                              queries for your zone to DualServer.   
+                                                                         b)   If corporate server is multizone server, let  
+                                                                              the corporate server pull zone from  
+                                                                              DualServer periodically, after checking  
+                                                                              serial.  
+                                                                         Both the cases set the first Default Forwarding  
+                                                                         Server of your Zone Server (DualServer) to  
+                                                                         your corporate DNS server.  
+I have some IP6 queries                                             Dual Server forwards and resolves external IP6  
+                                                                    queries but it do not cache these. You cannot  
+                                                                    specify IP6 addresses or IPs for local hosts in this  
+                                                                    version.  
+My ISP keeps changing its DNS Servers and Default                   There is no way in Dual Server to detect that.  
+Gateway.  
+
+  
+                                           
+
+----------------------- Page 40-----------------------
+
+                                               Dual DHCP DNS Server  
+
+12 Debugging  
+12.1 Windows  
+
+        Check network hardware and ensure that client machines have different host names from  
+         server and each other.  
+        No other service should be running on Server on ports 53 and 67.  If you get error like port 67  
+         already in use means some other DHCP program or proxy server with DHCP service is running. If  
+         you get error port 53 already in use means some other  DNS Server or proxy server with  DNS  
+         Service is already running. Use any port scanner program like Active Ports to detect which  
+         program is  listening on these ports. It is also possible that another copy of dualserver itself is  
+         running    or Microsoft connection sharing (ICS) is running, which uses these ports. How to  
+         disable ICS DNS/DHCP Service on your target networks, see INTERNET CONNECTION SHARING in  
+         ReadMe.txt file.  
+        If you still get error Static Interfaces/Listening Ports not available, it may be because of 1)  
+         Another DHCP/DNS Server is running or Interfaces specified on [LISTEN-ON] section are not  
+         available.  If your interface may not be ready when your computer/Service starts and due to this  
+         service fails to start, use Window's recovery option in Services applet to try starting service at  
+         later time.  
+        Look at DualServer.log (if running as service) or Run in standalone mode, it will provide all debug     
+         information as it verbatim the activities.  
+        If you use Broadband router, which also has DHCP Server, this  program may still run, but some  
+         hosts configured by other DHCP Server may not use this DNS or DHCP Service.  
+        Zone Transfer and Replication, if used on multihomed servers, make sure the IPs for Primary and  
+         Secondary server can be pinged from Each Other.  
+        Dualserver.state file backs up current leases and is read back when server restarts. If you want  
+         to clean previous leases, you may delete this file and restart the server.  
+        If you are not able to receive DHCP Discover messages from clients, make sure that Dual  DHCP  
+         DNS Server and client are on same physical network (not separated by routers). If it is separated  
+         by routers and it is same subnet, please allow routers to pass broadcast messages to Server on  
+         Port 67. If these are different subnets, use the BOOTP relay agents.  
+
+12.2 Linux  
+
+        Ensure that you run this program as root only.  
+        Check network hardware and ensure that client machines have different host names from  
+         server and each other.  
+        No other service should be running on Server on ports 53 and 67 If you get error like port 67  
+         already in use means some other DHCP program or proxy server with DHCP  service is running. If  
+         you get error port 53 already in use means some other DNS Server or proxy server  with DNS  
+         Service is already running. Use netstat command to detect which program is listening on these  
+         ports. It is also possible that another copy of dualserver itself is running.  
+
+----------------------- Page 41-----------------------
+
+                                          Dual DHCP DNS Server  
+
+   If you get error Static Interfaces/Listening Ports not available, it may be because of 1) Another     
+    DHCP/DNS Server is running or Interfaces specified on [LISTEN-ON] section are not available  or  
+    you have just restated the server and TCP port is not yet closed, then wait for some time.  
+   Look at log file (if running as service) or Run in standalone mode, it will provide all debug  
+    information as it verbatim the activities.  
+   If you use Broadband router, which also has DHCP Server, this program may still run, but some  
+    hosts  configured by other DHCP Server may not use this DNS Service.  
+   Often you will find that other machines can resolve each other and server, but server resolves   
+    nothing. This is because server's DNS Server may be different. To resolve machines from server,   
+    specify (forwarding) DNS Servers in ini file and set server's DNS Server to itself.  
+   Zone Transfer and Replication, if used on multihomed servers, make sure the IPs for Primary and  
+    Secondary server can be pinged from Each Other.  
+   /tmp/dualserver.state file backs up current leases and is read back when server restarts. If you  
+    want to clean previous leases, you may delete this file and restart the server.  
+   Errors like "libstdc++.so.?: cannot open shared object file: No such file or directory" are possible  
+    in some Linux flavors. Please recompile the program or create symbolic links:-  
+    ln -s /usr/local/lib/libstdc++.so.? /usr/lib/libstdc++.so.?   
+    ln -s /usr/local/lib/libgcc_s.so.? /usr/lib/libgcc_s.so.?  
+    ? is library version as reported in error. Or add the library path (directory where above file is) to  
+    env variable LD_LIBRARY_PATH.  
+   If you are not able to receive DHCP Discover messages from clients, make sure that Dual DHCP  
+    DNS Server and client are on same physical network (not separated by routers). If it is separated  
+    by routers and it is same subnet, please allow routers to pass broadcast messages to Server on  
+    Port 67. If these are different subnets, use the BOOTP relay agents or let routers provide this  
+    functionality.  
