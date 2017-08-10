@@ -32,3 +32,9 @@ While the blacklists will work for anyone running DualServer, the AutoUpdate por
 Note: A blacklist should be used together with other security measures to be more effective. For instance, a network user could simply change their device's currently configured DNS to get around blacklisting. It's also common for Android devices to automatically use Google DNS as a fallback if they cannot resovle quieries from the DNS servers currently configured on the device either manually or via DHCP. One simple way to make your network slightly more secure would be since your local DNS is on your LAN side, you could therefore configure your network equipment to block requests made by any LAN device other than your server to any server on port 53 on the WAN side to ensure DNS requests can only be made to your local server.
 
 To use these blacklists with DualServer you can either copy and paste their contents under the [DNS_HOSTS] section of the DualServer.ini or simply direct DualServer to the downloaded blacklist file using @blacklist.txt (or whatever the blacklist file name is) directly under the [DNS_HOSTS] section of the DualServer.ini. Please note, however, if you decide to direct DualServer to a file, the "@" line should be the first line in the [DNS_HOSTS] section of the DualServer.ini and all entries for the section must then come from the directed file.
+
+Helpful Links:
+
+Default URL for your local DualServer: http://127.0.0.1:6789/
+
+The complete reference of DHCP options: https://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xhtml
