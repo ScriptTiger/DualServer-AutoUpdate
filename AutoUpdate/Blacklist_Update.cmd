@@ -178,8 +178,11 @@ if !errorlevel!==1 goto Service
 echo DualServer did not finish restarting
 echo Please try to do so manually
 
-choice /m "Would you like to open today's DualServer log?"
-if !errorlevel!==1 start notepad "%DIR%log\DualServer%date:~-4%%date:~-10,2%%date:~-7,2%.log"
+choice /m "Would you like to open the latest DualServer log?"
+if !errorlevel!==1 (
+	for /f %%0 in ('dir /b /od /tc "%DIR%log"') do set LOG=%%~0
+	start notepad "%DIR%!LOG!"
+)
 
 choice /m "Would you like to open the services management window?"
 if !errorlevel!==1 start services.msc
