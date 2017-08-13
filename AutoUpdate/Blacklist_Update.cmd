@@ -24,7 +24,7 @@ rem If the ignore list doesn't exist, make one
 rem This CANNOT be empty
 if not exist "%IGNORE%" (
 	(
-		echo # Ignore list written in literal expressions
+		echo # Ignore list written in regular expressions
 		echo # If you decide to delete the below entries, DO NOT delete these above comment lines
 		echo # If this file is left completely empty, the script will break
 		echo ^^^www.google.com=0.0.0.0$
