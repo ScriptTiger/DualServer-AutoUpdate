@@ -21,4 +21,4 @@ If you want to ignore or whitelist certain entries from the Unified Hosts and pr
 
 After you have extracted the Blacklist_Update.cmd and wget directory into the directory of your choosing and editted the script accordingly for the new paths, insert #### BEGIN UNIFIED HOSTS #### and #### END UNIFIED HOSTS #### into the [DNS_HOSTS] section of the DualerServer.ini and run Blacklist_Update.cmd. After you have inserted the beginning and ending tags, if you run the script again it will automatically replace everything between them with the new blacklist.
 
-This script is currently only interactive and does not support automating it via ascheduled tasks, etc., as it is never wise to do so with any type of service.
+This script is currently only interactive and does not support automating it via a scheduled tasks, etc., as it is never wise to do so with any type of service.
