@@ -38,3 +38,5 @@ Helpful Links:
 Default URL for your local DualServer: http://127.0.0.1:6789/
 
 Official reference of DHCP options: https://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xhtml
+
+If you decide to clone this repo for whatever reason, be aware the histories of the blacklists are regularly cleaned to better manage GitHub resources due to their large file sizes and the volume with which they are updated.
