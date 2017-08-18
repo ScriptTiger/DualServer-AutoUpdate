@@ -8,7 +8,7 @@ rem https://github.com/ScriptTiger/DualServer
 rem =====
 
 rem Check for admin rights, and exit if none present
->nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\Prefetch\" || goto Admin
+"%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\Prefetch\" > nul || goto Admin
 
 rem Enabledelayed expansion to be used during for loops
 setlocal ENABLEDELAYEDEXPANSION
