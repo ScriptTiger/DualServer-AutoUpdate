@@ -21,7 +21,7 @@ P: Porn
 
 S: Social
 
-Combining Steven Blacks Unified Hosts with DualServer allows anyone from small home networks hosting DualServer on a regular old PC to a larger corporate infrastructure with multiple server blades and relay agents to block everything from sidebar ads, annoying YouTube video ads, banner ads, and even some invisible embedded analytics trying to gather more information about you for all connected devices using your DualServer DNS service, including laptops, mobile phones, PCs, Macs, Linux, whatever. The other files add onto the core Unified Hosts additional blocks. While the blacklist.txt is only the reformatted core Unified Hosts, the other files also contain the core Unified Hosts plus additional blocks, such as blackist-f.txt is the Unified Hosts and fake news, blacklist-fg.txt is the Unified Hosts and fake news and gambling, etc.
+Combining Steven Black's Unified Hosts with DualServer allows anyone from small home networks hosting DualServer on a regular old PC to a larger corporate infrastructure with multiple server blades and relay agents to block everything from sidebar ads, annoying YouTube video ads, banner ads, and even some invisible embedded analytics trying to gather more information about you for all connected devices using your DualServer DNS service, including laptops, mobile phones, PCs, Macs, Linux, whatever. The other files add onto the core Unified Hosts additional blocks. While the blacklist.txt is only the reformatted core Unified Hosts, the other files also contain the core Unified Hosts plus additional blocks, such as blackist-f.txt is the Unified Hosts and fake news, blacklist-fg.txt is the Unified Hosts and fake news and gambling, etc.
 
 AutoUpdate for DualServer Unified Hosts blacklist:
 
