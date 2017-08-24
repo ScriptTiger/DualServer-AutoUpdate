@@ -64,7 +64,7 @@ for /f "tokens=*" %%0 in ('findstr #.Date: "%DIR%%INI%"') do set OLD=%%0
 rem If the remote and local dates are not the same, update
 if "%OLD%"=="%NEW%" (
 	echo You already have the latest version.
-	choice /M "Would you like to update anyway?"
+	choice.exe /M "Would you like to update anyway?"
 	if !ERRORLEVEL!==1 (goto Update) else (exit /b)
 ) else (
 	echo Your version is out of date
@@ -116,16 +116,16 @@ if not "%URL:~-4%"==".txt" (
 
 	echo The Unified Hosts will automatically block malware and adware.
 
-	choice /m "Would you also like to block fake news?"
+	choice.exe /m "Would you also like to block fake news?"
 	if !errorlevel!==1 set URL=!URL!f
 
-	choice /m "Would you also like to block gambling?"
+	choice.exe /m "Would you also like to block gambling?"
 	if !errorlevel!==1 set URL=!URL!g
 
-	choice /m "Would you also like to block porn?"
+	choice.exe /m "Would you also like to block porn?"
 	if !errorlevel!==1 set URL=!URL!p
 
-	choice /m "Would you also like to block social?"
+	choice.exe /m "Would you also like to block social?"
 	if !errorlevel!==1 set URL=!URL!s
 
 	if "!URL:~-1!"=="-" set URL=!URL:~,-1!
@@ -164,7 +164,7 @@ ren "%DIR%%INI%.tmp" "%INI%"
 rem Restart DualServer and exit
 echo Your blacklist has been updated
 echo The changes will not take effect until after DualServer is restarted
-choice /m "Would you like to restart DualServer now?"
+choice.exe /m "Would you like to restart DualServer now?"
 if !errorlevel!==1 (
 	echo DualServer is being restarted...
 	call :Service stop
@@ -179,19 +179,19 @@ rem Service control function with error handling
 net %1 DUALServer > nul && exit /b
 
 echo DualServer could not %1
-choice /m "Would you like to try to %1 it again?"
+choice.exe /m "Would you like to try to %1 it again?"
 if !errorlevel!==1 goto Service
 
 echo DualServer did not finish restarting
 echo Please try to do so manually
 
-choice /m "Would you like to open the latest DualServer log?"
+choice.exe /m "Would you like to open the latest DualServer log?"
 if !errorlevel!==1 (
 	for /f %%0 in ('dir /b /od /tc "%DIR%log"') do set LOG=%%~0
 	start notepad "%DIR%!LOG!"
 )
 
-choice /m "Would you like to open the services management window?"
+choice.exe /m "Would you like to open the services management window?"
 if !errorlevel!==1 start services.msc
 
 exit
