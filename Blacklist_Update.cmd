@@ -16,7 +16,7 @@ setlocal ENABLEDELAYEDEXPANSION
 rem Set Source and target locations
 set WGETP=%~dp0wget\x!PROCESSOR_ARCHITECTURE:~-2!\wget.exe
 set WGET="%WGETP%" -O- -q -t 0 --retry-connrefused -c -T 0
-set URL=https://raw.githubusercontent.com/ScriptTiger/DualServer/master/blacklist-
+set URL=https://scripttiger.github.io/dualserver/blacklist-
 set DIR=%~dp0
 set INI=DualServer.ini
 set IGNORE=%~dp0ignore.txt
@@ -146,7 +146,7 @@ rem Rewrite DualServer.ini to a temporary file and inject new Unified Hosts afte
 		if !WRITE!==1 (
 			if "%%b"=="" (echo.) else (echo %%b)
 			if /i "%%b"=="#### BEGIN UNIFIED HOSTS ####" (
-				%WGET% %URL% | findstr /r /v /g:"%IGNORE%"
+				%WGET% %URL% | more | findstr /r /v /g:"%IGNORE%"
 				set WRITE=0
 			)
 		)
