@@ -27,3 +27,6 @@ This script is currently only interactive and does not support automating it via
 
 For more information about DualServer, the blacklists used by this Updater, as well as some DualServer tamplates and manuals, check out the project's web page:  
 https://scripttiger.github.io/dualserver
+
+If you would like to show your support for ScriptTiger, check out the Patreon page to find out how:  
+https://www.patreon.com/ScriptTiger
