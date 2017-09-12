@@ -1,9 +1,10 @@
 # Unified Hosts Updater for DualServer
 Updater script for DualServer.
 
-**If you are looking for the blacklists, please see the URL in the repo description or at the bottom of this readme. They have been moved to GitHub pages to better manage their git history as well as make downloads easier since they have been getting a lot of traffic by themselves. Because of this move if you are using an older Updater script, it will no longer work and you will need to download this repo again from the below link:**
-
-https://github.com/ScriptTiger/DualServer/archive/master.zip
+**If you are looking for the blacklists, please see the below URL:  
+https://scripttiger.github.io/dualserver  
+They have been moved to GitHub pages to better manage their git history as well as make downloads easier since they have been getting a lot of traffic by themselves. Because of this move if you are using an older Updater script, it will no longer work and you will need to download this repo again from the below link:  
+https://github.com/ScriptTiger/DualServer/archive/master.zip**
 
 Wget is also a component to this project licensed separately in accordance with its attached documentation.
 
