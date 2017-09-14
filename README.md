@@ -1,5 +1,5 @@
 # Unified Hosts Updater for DualServer
-Updater script for DualServer.
+Blacklist updater script for DualServer.
 
 **If you are looking for the blacklists, please see the below URL:  
 https://scripttiger.github.io/dualserver  
