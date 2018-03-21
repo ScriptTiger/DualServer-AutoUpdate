@@ -14,18 +14,33 @@ rem Enabledelayed expansion to be used during for loops
 setlocal ENABLEDELAYEDEXPANSION
 
 rem Set Source and target locations
-set WGETP=%~dp0wget\x!PROCESSOR_ARCHITECTURE:~-2!\wget.exe
-set WGET="%WGETP%" -O- -q -t 0 --retry-connrefused -c -T 0
-set URL=https://scripttiger.github.io/dualserver/blacklist-
 set DIR=%~dp0
-set INI=DualServer.ini
+set CACHE=%TEMP%\DualServer
+set INI=%~dp0DualServer.ini
+set CINI=%CACHE%\DualServer.ini
+set CBLACKLIST=%CACHE%\blacklist
 set IGNORE=%~dp0ignore.txt
+set URL=https://scripttiger.github.io/dualserver/blacklist-
 
-rem Make sure Wget can be found
-if not exist "%WGETP%" goto Wget
+rem Check access to BITS and set BITS strings or report error
+set BITS=0
+bitsadmin /list > nul && set /a BITS=%BITS%+1
+powershell get-bitstransfer > nul && set /a BITS=%BITS%+2
+if %BITS% geq 2 (
+	set BITS_FROM=powershell Start-BitsTransfer -source
+	set BITS_TO= -destination
+)
+if %BITS%==1 (
+	set BITS_FROM=bitsadmin /transfer "" 
+	set BITS_TO=
+)
+if %BITS%==0 goto BITS
+
+rem Create temporary cache if does not exist
+if not exist "%CACHE%" md "%CACHE%"
 
 rem Make sure the DualServer.ini can be found
-if not exist "%DIR%%INI%" goto Ini
+if not exist "%INI%" goto INI
 
 rem If the ignore list doesn't exist, make one
 rem This CANNOT be empty
@@ -43,7 +58,7 @@ set MARKED=0
 
 rem Check that markings are correctly positioned within [DNS_HOSTS] section
 for /f "tokens=*" %%0 in (
-	'findstr /b /i "[[] ####.BEGIN.UNIFIED.HOSTS.#### ####.END.UNIFIED.HOSTS.####" "%DIR%%INI%"'
+	'findstr /b /i "[[] ####.BEGIN.UNIFIED.HOSTS.#### ####.END.UNIFIED.HOSTS.####" "%INI%"'
 ) do (
 	if !MARKED!==2 if /i not "%%0"=="#### END UNIFIED HOSTS ####" (set MARKED=-2) else (set MARKED=3)
 	if !MARKED!==1 if /i not "%%0"=="#### BEGIN UNIFIED HOSTS ####" (set MARKED=-1) else (set MARKED=2)
@@ -55,59 +70,21 @@ if not !MARKED!==3 goto Mark
 
 echo Checking blacklist version...
 
-rem Grab date from remote Unified Hosts
-for /f "tokens=*" %%0 in ('%WGET% %URL:~,-1%.txt ^| findstr #.Date:') do set NEW=%%0
+rem Grab date from remote Unified Hosts, and error out if can't
+%BITS_FROM% %URL:~,-1%.txt %BITS_TO% %CBLACKLIST% || goto Connectivity
+for /f "tokens=*" %%0 in ('findstr #.Date: "%CBLACKLIST%"') do set NEW=%%0
 
 rem rem Grab date from the local DualServer.ini Unified Hosts blacklist
-for /f "tokens=*" %%0 in ('findstr #.Date: "%DIR%%INI%"') do set OLD=%%0
+for /f "tokens=*" %%0 in ('findstr #.Date: "%INI%"') do set OLD=%%0
 
 rem If the remote and local dates are not the same, update
 if "%OLD%"=="%NEW%" (
 	echo You already have the latest version.
 	choice.exe /M "Would you like to update anyway?"
-	if !ERRORLEVEL!==1 (goto Update) else (exit /b)
+	if !ERRORLEVEL!==1 (goto Update) else (goto Exit)
 ) else (
 	echo Your version is out of date
-	goto Update
 )
-
-:Wget
-echo Wget cannot be found
-echo You can do either of the following
-echo 1.] Put the Wget directory in the same directory as this script
-echo 2.] Edit the "WGETP" variable of this script
-pause
-exit
-
-:Ini
-echo The DualServer.ini cannot be found
-echo You can do either of the following
-echo 1.] Put these files in the DualServer root directory
-echo 2.] Edit the "DIR" variable of this script
-pause
-exit
-
-:Admin
-echo You must run this with administrator privileges!
-pause
-exit
-
-:Mark
-if !MARKED!==0 echo "[DNS_HOSTS]" section not found^^!
-if !MARKED!==-1 echo "#### BEGIN UNIFIED HOSTS ####" not properly marked in "[DNS_HOSTS]" section^^!
-if !MARKED!==-2 echo "#### END UNIFIED HOSTS ####" not properly marked in "[DNS_HOSTS]" section^^!
-echo.
-echo Your DualServer.ini is not properly marked
-echo Please ensure the following lines mark where to insert the blacklist:
-echo.
-echo #### BEGIN UNIFIED HOSTS ####
-echo #### END UNIFIED HOSTS ####
-echo.
-echo Notes: You should only have to manually mark this once
-echo Updates automatically overwite between the above lines
-echo The blacklist must be somewhere in the [DNS_HOSTS] section to work
-pause
-exit
 
 :Update
 
@@ -134,6 +111,8 @@ if not "%URL:~-4%"==".txt" (
 
 echo Updating blacklist...
 
+%BITS_FROM% %URL% %BITS_TO% %CBLACKLIST% || goto Connectivity
+
 rem Enable writing to file
 rem To be disabled later to skip old hosts section, and then re-enable to continue after #### END UNIFIED HOSTS ####
 set WRITE=1
@@ -141,12 +120,12 @@ set WRITE=1
 rem Rewrite DualServer.ini to a temporary file and inject new Unified Hosts after #### BEGIN UNIFIED HOSTS ####
 (
 	for /f "tokens=1* delims=:" %%a in (
-		'findstr /n .* "%DIR%%INI%"'
+		'findstr /n .* "%INI%"'
 	) do (
 		if !WRITE!==1 (
 			if "%%b"=="" (echo.) else (echo %%b)
 			if /i "%%b"=="#### BEGIN UNIFIED HOSTS ####" (
-				%WGET% %URL% | more | findstr /r /v /g:"%IGNORE%"
+				findstr /r /v /g:"%IGNORE%" "%CBLACKLIST%"
 				set WRITE=0
 			)
 		)
@@ -155,11 +134,10 @@ rem Rewrite DualServer.ini to a temporary file and inject new Unified Hosts afte
 			set WRITE=1
 		)
 	)
-) > "%DIR%%INI%.tmp"
+) > "%CINI%"
 
-rem Delete the old DualServer.ini and replace it with the new one
-del "%DIR%%INI%"
-ren "%DIR%%INI%.tmp" "%INI%"
+rem Replace the old DualServer.ini with the new one
+copy "%CINI%" "%INI%" /y > nul
 
 rem Restart DualServer and exit
 echo Your blacklist has been updated
@@ -172,11 +150,11 @@ if !errorlevel!==1 (
 	echo Your DualServer has been successfully restarted with the new blacklist
 	pause
 )
-exit
+goto Exit
 
 rem Service control function with error handling
 :Service
-net %1 DUALServer > nul && exit /b
+net %1 DUALServer > nul && goto Exit
 
 echo DualServer could not %1
 choice.exe /m "Would you like to try to %1 it again?"
@@ -193,5 +171,51 @@ if !errorlevel!==1 (
 
 choice.exe /m "Would you like to open the services management window?"
 if !errorlevel!==1 start services.msc
+goto Exit
 
+:BITS
+echo BITS cannot be found
+echo This script requires BITS to be installed on you system in order to function
+pause
+goto Exit
+
+:Connectivity
+echo This script cannot connect to the Internet
+echo This script requires an active Internet connection to update your hosts file
+pause
+goto Exit
+
+:INI
+echo The DualServer.ini cannot be found
+echo You can do either of the following
+echo 1.] Put these files in the DualServer root directory
+echo 2.] Edit the "DIR" variable of this script
+pause
+goto Exit
+
+:Admin
+echo You must run this with administrator privileges!
+pause
+goto Exit
+
+:Mark
+if !MARKED!==0 echo "[DNS_HOSTS]" section not found^^!
+if !MARKED!==-1 echo "#### BEGIN UNIFIED HOSTS ####" not properly marked in "[DNS_HOSTS]" section^^!
+if !MARKED!==-2 echo "#### END UNIFIED HOSTS ####" not properly marked in "[DNS_HOSTS]" section^^!
+echo.
+echo Your DualServer.ini is not properly marked
+echo Please ensure the following lines mark where to insert the blacklist:
+echo.
+echo #### BEGIN UNIFIED HOSTS ####
+echo #### END UNIFIED HOSTS ####
+echo.
+echo Notes: You should only have to manually mark this once
+echo Updates automatically overwite between the above lines
+echo The blacklist must be somewhere in the [DNS_HOSTS] section to work
+pause
+goto Exit
+
+:Exit
+echo Cleaning temporary files and exiting...
+rmdir /s /q "%CACHE%"
 exit

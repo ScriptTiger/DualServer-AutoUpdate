@@ -6,8 +6,6 @@ https://scripttiger.github.io/dualserver
 They have been moved to GitHub pages to better manage their git history as well as make downloads easier since they have been getting a lot of traffic by themselves. Because of this move if you are using an older Updater script, it will no longer work and you will need to download this repo again from the below link:  
 https://github.com/ScriptTiger/DualServer/archive/master.zip**
 
-Wget is also a component to this project licensed separately in accordance with its attached documentation.
-
 If you download the repo ZIP and extract the contents to your DualServer root, the same directory as your DualServer.ini, it can update your DualServer for you depending on your preferences after you have marked where you want the Unified Hosts to go without requiring you to have a local git repo of this project. If you plan to always use the same blacklist, you can edit the "URL" variable at the top of the script with the direct URL of the blacklist you prefer and this will bypass having to be prompted for you preferences later.
 
 If you want to ignore or whitelist certain entries from the Unified Hosts and prevent them from appearing in DualServer, just add them to the ignore.txt. These entries are made with regular expressions.  
