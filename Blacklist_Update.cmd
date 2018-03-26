@@ -19,7 +19,7 @@ set CACHE=%TEMP%\DualServer
 set INI=%~dp0DualServer.ini
 set CINI=%CACHE%\DualServer.ini
 set CBLACKLIST=%CACHE%\blacklist
-set IGNORE=%~dp0ignore.txt
+set IGNORE=%~dps0ignore.txt
 set URL=https://scripttiger.github.io/dualserver/blacklist-
 
 rem Check access to BITS and set BITS strings or report error
@@ -44,13 +44,15 @@ if not exist "%INI%" goto INI
 
 rem If the ignore list doesn't exist, make one
 rem This CANNOT be empty
-if not exist "%IGNORE%" (
+if not exist %IGNORE% (
 	(
-		echo # Ignore list written in regular expressions
-		echo # If you decide to delete the below entries, DO NOT delete these above comment lines
-		echo # If this file is left completely empty, the script will break
-		echo ^^^www.google.com=0.0.0.0$
-	) > "%IGNORE%"
+		echo ^^^www[.]google[.]com=0[.]0[.]0[.]0$
+	) > %IGNORE%
+	set EMPTY=0
+) else (
+	set EMPTY=1
+	rem Check if the ignore list is empty
+	for /f "tokens=*" %%0 in (%IGNORE%) do set EMPTY=0
 )
 
 rem Initialize MARKED to 0 for no markings yet verified
@@ -125,7 +127,9 @@ rem Rewrite DualServer.ini to a temporary file and inject new Unified Hosts afte
 		if !WRITE!==1 (
 			if "%%b"=="" (echo.) else (echo %%b)
 			if /i "%%b"=="#### BEGIN UNIFIED HOSTS ####" (
-				findstr /r /v /g:"%IGNORE%" "%CBLACKLIST%"
+				if !EMPTY!==0 (
+					findstr /r /v /g:%IGNORE% "%CBLACKLIST%"
+				) else type "%CBLACKLIST%"
 				set WRITE=0
 			)
 		)
