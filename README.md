@@ -6,7 +6,7 @@ Blacklist updater script for DualServer.
 **If you are looking for the blacklists, please see the below URL:  
 https://scripttiger.github.io/dualserver  
 They have been moved to GitHub pages to better manage their git history as well as make downloads easier since they have been getting a lot of traffic by themselves. Because of this move if you are using an older Updater script, it will no longer work and you will need to download this repo again from the below link:  
-https://github.com/ScriptTiger/DualServer/archive/master.zip**
+https://github.com/ScriptTiger/DualServer-AutoUpdate/archive/master.zip**
 
 If you download the repo ZIP and extract the contents to your DualServer root, the same directory as your DualServer.ini, it can update your DualServer for you depending on your preferences after you have marked where you want the Unified Hosts to go without requiring you to have a local git repo of this project. If you plan to always use the same blacklist, you can edit the "URL" variable at the top of the script with the direct URL of the blacklist you prefer and this will bypass having to be prompted for you preferences later.
 
